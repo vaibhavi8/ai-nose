@@ -1,1 +1,1 @@
-# ai-nose
+# Nasal.ai
