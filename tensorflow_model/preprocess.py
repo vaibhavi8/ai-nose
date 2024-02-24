@@ -10,8 +10,10 @@ from keras.layers import Flatten, Dense
 from keras.utils import to_categorical
 from sklearn.preprocessing import LabelEncoder
 from keras.optimizers import Adam
+from sklearn import metrics
+import random
 
-# # reading the data
+# # # reading the data
 # ### Settings
 HOME_PATH = ".."              # Location of the working directory
 DATASET_PATH = "../dataset"   # Upload your .csv samples to this directory
@@ -321,16 +323,15 @@ if os.path.exists(OUT_PATH):
   shutil.rmtree(OUT_PATH)
 os.makedirs(OUT_PATH)
 
+
+### Write out data to .csv files
 os.mkdir(os.path.join(OUT_PATH, "rum"))
 os.mkdir(os.path.join(OUT_PATH, "test"))
 os.mkdir(os.path.join(OUT_PATH, "kahlua"))
 os.mkdir(os.path.join(OUT_PATH, "irishCream"))
 os.mkdir(os.path.join(OUT_PATH, "coffee"))
-### Write out data to .csv files
 
 # Go through all the original filenames
-
-print(prep_data)
 row_index = 0
 for file_num, filename in enumerate(filenames):
 
@@ -347,7 +348,59 @@ for file_num, filename in enumerate(filenames):
       csv_writer.writerow(prep_data[row_index])
       row_index += 1
 
-splitfolders.ratio('../out', output='output', seed=1361, ratio=(0.7, 0.2, 0.1))
+# splitfolders.ratio('../out', output='output', seed=1375, ratio=(0.8, 0.1, 0.1))
+def split_data(input_folder, output_folder, train_ratio=0.7, val_ratio=0.15, test_ratio=0.15):
+    input_data = []
+    for dir in os.listdir(input_folder):
+      dirPath = os.path.join(input_folder, dir)
+      temp = []
+      for filename in os.listdir(dirPath):
+        temp.append(os.path.join(dir, filename))
+      input_data.append(temp)
+    
+    # Create output folder if it doesn't exist and deleting it if it doesn exist
+    if os.path.exists(output_folder):
+        shutil.rmtree(output_folder)
+    os.makedirs(output_folder)
+
+    # Create train, val, and test folders
+    train_folder = os.path.join(output_folder, 'train')
+    val_folder = os.path.join(output_folder, 'val')
+    test_folder = os.path.join(output_folder, 'testing')
+
+    os.mkdir(train_folder)
+    os.mkdir(val_folder)
+    os.mkdir(test_folder)
+
+    for dir in os.listdir(output_folder):
+      os.makedirs(os.path.join(output_folder, dir, "rum"))
+      os.makedirs(os.path.join(output_folder, dir, "test"))
+      os.makedirs(os.path.join(output_folder, dir, "kahlua"))
+      os.makedirs(os.path.join(output_folder, dir, "irishCream"))
+      os.makedirs(os.path.join(output_folder, dir, "coffee"))
+
+    # Shuffle the input data
+    for i in input_data:
+      random.shuffle(i)
+      num_samples = len(i)
+      num_train = int(train_ratio * num_samples)
+      num_val = int(val_ratio * num_samples)
+      # num_test = int(test_ratio * num_samples)
+
+      train_data= i[:num_train]
+      val_data=i[num_train:num_train + num_val]
+      test_data=i[num_train + num_val:]
+
+      copy_files(train_data, train_folder, input_folder)
+      copy_files(val_data, val_folder, input_folder)
+      copy_files(test_data, test_folder, input_folder)
+
+def copy_files(data, destination_folder, input_folder):
+    for i in data:
+        filepath = os.path.join(input_folder,i)
+        shutil.copy(filepath, os.path.join(destination_folder, i))
+
+split_data('../out', 'output')
 
 ### FLATTENING DATA ###
 
@@ -369,9 +422,9 @@ def flatten(path):
         for row in csvreader:
           labels.append(file[0:3])
           data.append(row)
-  print(data)
   data = np.array(data).astype(float)
   labels = np.array(labels)
+
   return data, labels
 
 X_train, y_train = flatten(trainingPath)
@@ -406,6 +459,28 @@ model.compile(optimizer=Adam(learning_rate=0.0001), loss='categorical_crossentro
 labels = ['coffee', 'irishCream', 'kahluah', 'rum', 'test']
 model.fit(X_train_reshape, y_train_one_hot, epochs=100, batch_size=16, validation_data=(X_valid_reshape, y_valid_one_hot))
 
+# ### TESTING ###
+
+# # X_test, y_test = flatten(testPath)
+# # X_test_reshape = X_test.reshape(-1, 65)
+
+# # y_test_encoded = label_encoder.transform(y_test)
+
+# # y_test_one_hot = to_categorical(y_test_encoded, num_classes=num_classes)
+# # # Make predictions on test data
+# # y_pred_prob = model.predict(X_test_reshape) # Predict class probabilities
+# # y_pred = np.argmax(y_pred_prob, axis=1) # Convert probabilities to class labels
+
+# # # Evaluate performance (optional)
+# # accuracy = metrics.accuracy_score(y_test_one_hot, y_pred)
+# # precision = metrics.precision_score(y_test_one_hot, y_pred, average='weighted')
+# # recall = metrics.recall_score(y_test_one_hot, y_pred, average='weighted')
+# # f1 = metrics.f1_score(y_test_one_hot, y_pred, average='weighted')
+
+# # print("Test Accuracy:", accuracy)
+# # print("Test Precision:", precision)
+# # print("Test Recall:", recall)
+# # print("Test F1 Score:", f1)
 
 
 
