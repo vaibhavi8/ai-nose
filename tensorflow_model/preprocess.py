@@ -59,7 +59,7 @@ if os.path.exists(DATASET_PATH):
 os.makedirs(DATASET_PATH)
 
 os.mkdir(os.path.join(DATASET_PATH, "rum"))
-os.mkdir(os.path.join(DATASET_PATH, "test"))
+# os.mkdir(os.path.join(DATASET_PATH, "test"))
 os.mkdir(os.path.join(DATASET_PATH, "kahlua"))
 os.mkdir(os.path.join(DATASET_PATH, "irishCream"))
 os.mkdir(os.path.join(DATASET_PATH, "coffee"))
@@ -72,11 +72,11 @@ for filename in os.listdir(NANODATA_PATH):   #going through all the files in nan
     rum += 1
     if rum%5 == 0:
       rumIter += 1
-  elif(filename[0:4]=="test"):
-    writeToFile(filepath, (os.path.join(DATASET_PATH, f"test/test_{testIter}.csv")))
-    test += 1
-    if test%5 == 0:
-      testIter += 1
+  # elif(filename[0:4]=="test"):
+  #   writeToFile(filepath, (os.path.join(DATASET_PATH, f"test/test_{testIter}.csv")))
+  #   test += 1
+  #   if test%5 == 0:
+  #     testIter += 1
   elif(filename[0:4]=="kahl"):
     writeToFile(filepath, (os.path.join(DATASET_PATH, f"kahlua/kahlua_{kahluaIter}.csv")))
     kahlua += 1
@@ -92,8 +92,8 @@ for filename in os.listdir(NANODATA_PATH):   #going through all the files in nan
     coffee += 1
     if coffee%5 == 0:
       coffeeIter += 1
-  else:
-    print("Error: category for " + filename + " not found.")
+  # else:
+  #   print("Error: category for " + filename + " not found.")
 
 print("Coffee: " + str(coffee))
 print("Test: " + str(test))
@@ -326,7 +326,7 @@ os.makedirs(OUT_PATH)
 
 ### Write out data to .csv files
 os.mkdir(os.path.join(OUT_PATH, "rum"))
-os.mkdir(os.path.join(OUT_PATH, "test"))
+# os.mkdir(os.path.join(OUT_PATH, "test"))
 os.mkdir(os.path.join(OUT_PATH, "kahlua"))
 os.mkdir(os.path.join(OUT_PATH, "irishCream"))
 os.mkdir(os.path.join(OUT_PATH, "coffee"))
@@ -347,8 +347,7 @@ for file_num, filename in enumerate(filenames):
     for _ in range(num_lines[file_num]):
       csv_writer.writerow(prep_data[row_index])
       row_index += 1
-
-# splitfolders.ratio('../out', output='output', seed=1375, ratio=(0.8, 0.1, 0.1))
+      
 def split_data(input_folder, output_folder, train_ratio=0.7, val_ratio=0.15, test_ratio=0.15):
     input_data = []
     for dir in os.listdir(input_folder):
@@ -374,7 +373,7 @@ def split_data(input_folder, output_folder, train_ratio=0.7, val_ratio=0.15, tes
 
     for dir in os.listdir(output_folder):
       os.makedirs(os.path.join(output_folder, dir, "rum"))
-      os.makedirs(os.path.join(output_folder, dir, "test"))
+      # os.makedirs(os.path.join(output_folder, dir, "test"))
       os.makedirs(os.path.join(output_folder, dir, "kahlua"))
       os.makedirs(os.path.join(output_folder, dir, "irishCream"))
       os.makedirs(os.path.join(output_folder, dir, "coffee"))
@@ -401,95 +400,3 @@ def copy_files(data, destination_folder, input_folder):
         shutil.copy(filepath, os.path.join(destination_folder, i))
 
 split_data('../out', 'output')
-
-### FLATTENING DATA ###
-
-#gathering preprocessed data from training/validation/testing file
-trainingPath = 'output/train/'
-validPath = 'output/val/'
-testPath = 'output/test'
-def flatten(path):
-  features_dirs = []
-  data = []
-  labels = []
-  for dir in os.listdir(path):
-    features_dirs.append(dir)
-    for file in os.listdir(os.path.join(path, dir)):
-      filepath = os.path.join(path, dir, file)
-      with open(filepath, newline='') as afile:
-        csvreader = csv.reader(afile)
-        next(csvreader)
-        for row in csvreader:
-          labels.append(file[0:3])
-          data.append(row)
-  data = np.array(data).astype(float)
-  labels = np.array(labels)
-
-  return data, labels
-
-X_train, y_train = flatten(trainingPath)
-X_valid, y_valid = flatten(validPath)
-
-
-label_encoder = LabelEncoder()
-
-y_train_encoded = label_encoder.fit_transform(y_train)
-y_valid_encoded = label_encoder.transform(y_valid)
-
-num_classes = len(label_encoder.classes_)
-
-y_train_one_hot = to_categorical(y_train_encoded, num_classes=num_classes)
-y_valid_one_hot = to_categorical(y_valid_encoded, num_classes=num_classes)
-
-
-X_train_reshape = X_train.reshape(-1, 65) #make changes based on features and sensors
-X_valid_reshape = X_valid.reshape(-1, 65) #make changes based on features and sensors
-
-
-### DEFINING MODEL STRUCTURE ###
-model = Sequential()
-# model.add(Flatten(input_shape=(66,5))) #flattening data by defining there are 66 sensors and 5 features
-
-model.add(Dense(128, activation='relu', input_shape=(65,))) #hidden layer 1
-model.add(Dense(64, activation='relu'))  #hidden layer 2
-model.add(Dense(5, activation='softmax')) #output is the number of different categories we are trying to calculate between 
-
-model.compile(optimizer=Adam(learning_rate=0.0001), loss='categorical_crossentropy', metrics=['accuracy'])
-
-labels = ['coffee', 'irishCream', 'kahluah', 'rum', 'test']
-model.fit(X_train_reshape, y_train_one_hot, epochs=100, batch_size=16, validation_data=(X_valid_reshape, y_valid_one_hot))
-
-# ### TESTING ###
-
-# # X_test, y_test = flatten(testPath)
-# # X_test_reshape = X_test.reshape(-1, 65)
-
-# # y_test_encoded = label_encoder.transform(y_test)
-
-# # y_test_one_hot = to_categorical(y_test_encoded, num_classes=num_classes)
-# # # Make predictions on test data
-# # y_pred_prob = model.predict(X_test_reshape) # Predict class probabilities
-# # y_pred = np.argmax(y_pred_prob, axis=1) # Convert probabilities to class labels
-
-# # # Evaluate performance (optional)
-# # accuracy = metrics.accuracy_score(y_test_one_hot, y_pred)
-# # precision = metrics.precision_score(y_test_one_hot, y_pred, average='weighted')
-# # recall = metrics.recall_score(y_test_one_hot, y_pred, average='weighted')
-# # f1 = metrics.f1_score(y_test_one_hot, y_pred, average='weighted')
-
-# # print("Test Accuracy:", accuracy)
-# # print("Test Precision:", precision)
-# # print("Test Recall:", recall)
-# # print("Test F1 Score:", f1)
-
-
-
-
-
-
-
-
-
-
-
-
