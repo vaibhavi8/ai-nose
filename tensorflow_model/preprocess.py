@@ -60,8 +60,8 @@ os.makedirs(DATASET_PATH)
 
 os.mkdir(os.path.join(DATASET_PATH, "rum"))
 # os.mkdir(os.path.join(DATASET_PATH, "test"))
-os.mkdir(os.path.join(DATASET_PATH, "kahlua"))
-os.mkdir(os.path.join(DATASET_PATH, "irishCream"))
+# os.mkdir(os.path.join(DATASET_PATH, "kahlua"))
+# os.mkdir(os.path.join(DATASET_PATH, "irishCream"))
 os.mkdir(os.path.join(DATASET_PATH, "coffee"))
 for filename in os.listdir(NANODATA_PATH):   #going through all the files in nano_data
   filepath = os.path.join(NANODATA_PATH, filename)
@@ -77,16 +77,16 @@ for filename in os.listdir(NANODATA_PATH):   #going through all the files in nan
   #   test += 1
   #   if test%5 == 0:
   #     testIter += 1
-  elif(filename[0:4]=="kahl"):
-    writeToFile(filepath, (os.path.join(DATASET_PATH, f"kahlua/kahlua_{kahluaIter}.csv")))
-    kahlua += 1
-    if kahlua%5 == 0:
-      kahluaIter += 1
-  elif(filename[0:4]=="Iris"):
-    writeToFile(filepath, (os.path.join(DATASET_PATH, f"irishCream/irishCream_{irishCreamIter}.csv")))
-    irishCream += 1
-    if irishCream%5 == 0:
-      irishCreamIter += 1
+  # elif(filename[0:4]=="kahl"):
+  #   writeToFile(filepath, (os.path.join(DATASET_PATH, f"kahlua/kahlua_{kahluaIter}.csv")))
+  #   kahlua += 1
+  #   if kahlua%5 == 0:
+  #     kahluaIter += 1
+  # elif(filename[0:4]=="Iris"):
+  #   writeToFile(filepath, (os.path.join(DATASET_PATH, f"irishCream/irishCream_{irishCreamIter}.csv")))
+  #   irishCream += 1
+  #   if irishCream%5 == 0:
+  #     irishCreamIter += 1
   elif(filename[0:4]=="coff"):
     writeToFile(filepath, (os.path.join(DATASET_PATH, f"coffee/coffee_{coffeeIter}.csv")))
     coffee += 1
@@ -348,7 +348,7 @@ for file_num, filename in enumerate(filenames):
       csv_writer.writerow(prep_data[row_index])
       row_index += 1
       
-def split_data(input_folder, output_folder, train_ratio=0.7, val_ratio=0.15, test_ratio=0.15):
+def split_data(input_folder, output_folder, train_ratio=0.8, val_ratio=0.2, test_ratio=0.0):
     input_data = []
     for dir in os.listdir(input_folder):
       dirPath = os.path.join(input_folder, dir)
@@ -374,8 +374,8 @@ def split_data(input_folder, output_folder, train_ratio=0.7, val_ratio=0.15, tes
     for dir in os.listdir(output_folder):
       os.makedirs(os.path.join(output_folder, dir, "rum"))
       # os.makedirs(os.path.join(output_folder, dir, "test"))
-      os.makedirs(os.path.join(output_folder, dir, "kahlua"))
-      os.makedirs(os.path.join(output_folder, dir, "irishCream"))
+      # os.makedirs(os.path.join(output_folder, dir, "kahlua"))
+      # os.makedirs(os.path.join(output_folder, dir, "irishCream"))
       os.makedirs(os.path.join(output_folder, dir, "coffee"))
 
     # Shuffle the input data

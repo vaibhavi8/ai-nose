@@ -1,17 +1,15 @@
 import csv
 import os
-import shutil
 import keras
 import numpy as np
 import matplotlib.pyplot as plt
-import splitfolders
 from keras.models import Sequential, load_model
-from keras.layers import Flatten, Dense
+from keras.layers import Flatten, Dense, Dropout
 from keras.utils import to_categorical
+from keras.callbacks import EarlyStopping, ReduceLROnPlateau
 from sklearn.preprocessing import LabelEncoder
 from keras.optimizers import Adam
 from sklearn import metrics
-import random
 
 # ### FLATTENING DATA ###
 
@@ -41,11 +39,11 @@ import random
 # X_train, y_train = flatten(trainingPath)
 # X_valid, y_valid = flatten(validPath)
 
-
 # label_encoder = LabelEncoder()
 
 # y_train_encoded = label_encoder.fit_transform(y_train)
 # y_valid_encoded = label_encoder.transform(y_valid)
+
 
 # num_classes = len(label_encoder.classes_)
 
@@ -61,27 +59,30 @@ import random
 # model = Sequential()
 # # model.add(Flatten(input_shape=(66,5))) #flattening data by defining there are 66 sensors and 5 features
 
-# model.add(Dense(128, activation='relu', input_shape=(65,))) #hidden layer 1
-# model.add(Dense(64, activation='relu'))  #hidden layer 2
-# model.add(Dense(4, activation='softmax')) #output is the number of different categories we are trying to calculate between 
+# model.add(Dense(64, activation='relu', input_shape=(65,))) #hidden layer 1
+# model.add(Dropout(0.3))
+# model.add(Dense(32, activation='relu'))  #hidden layer 2
+# model.add(Dropout(0.3))
+# model.add(Dense(16, activation='relu'))
+# model.add(Dropout(0.3))
+# model.add(Dense(8, activation='relu'))
+# model.add(Dropout(0.3))
+
+
+# model.add(Dense(2, activation='softmax')) #output is the number of different categories we are trying to calculate between 
 
 # model.compile(optimizer=Adam(learning_rate=0.0001), loss='categorical_crossentropy', metrics=['accuracy'])
 
-# labels = ['coffee', 'irishCream', 'kahluah', 'rum', 'test']
-# model.fit(X_train_reshape, y_train_one_hot, epochs=100, batch_size=16, validation_data=(X_valid_reshape, y_valid_one_hot))
+# labels = ['coffee', 'rum']
+
+# early_stop = EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
+
+# reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=2, min_lr=0.0001)
+# model.fit(X_train_reshape, y_train_one_hot, epochs=50, batch_size=8, validation_data=(X_valid_reshape, y_valid_one_hot), callbacks=[early_stop, reduce_lr])
 
 # model.save("PoCmodel.h5")
 
-# ### TESTING ###
-
-testFilePath = os.path.join('output/testing/',os.listdir('output/testing/')[2])
-print(testFilePath)
-data = []
-with open(testFilePath, 'r') as f:
-  csv_reader = csv.reader(f, delimiter=';')
-  data = next(csv_reader)[1:]
-data = np.array(data).astype(float)
-
+## TESTING ###
 
 def preprocessing(raw_data): #data type = np array
   # Calculate means, standard deviations, and ranges
@@ -205,23 +206,28 @@ def preprocessing(raw_data): #data type = np array
     prep_c += 1
 
   return prep_data
-
-prepped_data = preprocessing(data)
-
 loaded_model = load_model("PoCmodel.h5")
+for i in range(8):
+  testFilePath = os.path.join('output/testing/',os.listdir('output/testing/')[i])
+  print(testFilePath)
+  data = []
+  with open(testFilePath, 'r') as f:
+    csv_reader = csv.reader(f, delimiter=';')
+    data = next(csv_reader)[1:]
+  data = np.array(data).astype(float)
+  prepped_data = preprocessing(data)
+  predictions = loaded_model.predict(prepped_data)
+  print(predictions)
 
-predictions = loaded_model.predict(prepped_data)
-print(predictions)
+  # 'predictions' will contain the predicted probabilities for each class
+  # If you want to get the predicted class label, you can use argmax to find the index of the class with the highest probability
+  predicted_labels = np.argmax(predictions, axis=1)
 
-# 'predictions' will contain the predicted probabilities for each class
-# If you want to get the predicted class label, you can use argmax to find the index of the class with the highest probability
-predicted_labels = np.argmax(predictions, axis=1)
+  # If you have class labels, you can map the predicted label indices back to their corresponding class labels
+  class_labels = ['coffee', 'rum']
+  predicted_class_labels = [class_labels[label_index] for label_index in predicted_labels]
 
-# If you have class labels, you can map the predicted label indices back to their corresponding class labels
-class_labels = ['coffee', 'irishCream', 'kahluah', 'rum', 'test']
-predicted_class_labels = [class_labels[label_index] for label_index in predicted_labels]
-
-print("Predicted class labels:", predicted_class_labels)
+  print("Predicted class labels:", predicted_class_labels)
 
 
   
