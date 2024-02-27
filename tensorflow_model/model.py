@@ -84,18 +84,25 @@ from sklearn import metrics
 
 ## TESTING ###
 
+def normalizeData(mins, ranges, raw_data):
+  return (raw_data - mins) / ranges
+
+mins = np.array([17574.5, 17566.8, 30403.4, 30394.0, 30411.1, 23203.0, 23228.2, 23252.9, 19406.1, 19402.1, 19395.6, 12410.9, 12411.1, 12407.8, 20933.8, 20928.1, 27028.0, 27000.3, 8457.5, 8458.0, 8459.2, 13884.2, 13889.3, 13886.2, 23073.8, 23059.4, 23047.7, 39916.7, 39889.8, 39894.5, 18968.4, 18964.8, 40654.2, 40650.3, 34637.4, 34656.7, 34618.0, 191146.8, 191325.0, 190965.8, 93533.5, 93496.0, 93418.9, 91400.4, 91433.4, 91361.8, 118789.8, 118813.5, 1550433.8, 1524820.8, 48062.5, 48098.9, 48109.6, 16729.0, 16729.2, 16731.6, 1092.5, 1092.5, 5061.7, 5066.3, 5070.6, 27324.3, 27363.9, 24.71, 41.39])
+
+ranges = np.array([710.3, 704.5, 13004.5, 13062.6, 13046.8, 13818.7, 13773.2, 13747.7, 1110.4, 1117.8, 1111.5, 5403.8, 5407.1, 5402.4, 175.5, 187.3, 285.6, 277.8, 180.2, 177.5, 177.2, 1807.8, 1803.8, 1814.2, 6019.7, 6030.6, 6031.1, 12391.8, 12411.1, 12401.6, 444.2, 441.6, 903.5, 898.6, 6506.0, 6537.2, 6592.3, 19690.2, 19258.2, 20031.9, 11784.6, 12026.6, 12814.2, 20947.3, 20931.3, 20875.6, 2448.7, 2572.2, 217288.7, 178177.7, 9254.2, 9116.0, 9153.3, 603.4, 611.1, 603.2, 0.1, 0.1, 551.5, 551.2, 549.7, 1776.3, 1754.4, 2.38, 24.87])
+
+print(len(mins))
+print(len(ranges))
+
 def preprocessing(raw_data): #data type = np array
-  # Calculate means, standard deviations, and ranges
-  means = np.mean(raw_data, axis=0)
-  std_devs = np.std(raw_data, axis=0)
-  maxes = np.max(raw_data, axis=0)
-  mins = np.min(raw_data, axis=0)
-  ranges = np.ptp(raw_data, axis=0)
   header = len(raw_data)
-  PREP_DROP = -1
+
+   #we want it to only check for dropped columns
+  PREP_DROP = -1 
   PREP_NONE = 0 
   PREP_STD = 1
-  PREP_NORM = 2
+  PREP_NORM = 2   
+
 
   preproc = [PREP_NORM,   # 1
            PREP_NORM,   # 2
@@ -166,46 +173,22 @@ def preprocessing(raw_data): #data type = np array
   assert(len(preproc)==raw_data.shape[0])
 
 
-  num_cols = sum(1 for x in preproc if x != PREP_DROP)
-  prep_data = np.zeros((1, num_cols))
-  prep_means = []
-  prep_std_devs = []
-  prep_mins = []
-  prep_ranges = []
+  num_cols = sum(1 for x in preproc if x != PREP_DROP) 
+  # Initialize preprocessed data array
+  prep_data = np.array([])  # Initialize as an empty 1D array
 
-    # Go through each column to preprocess the data
-  prep_c = 0
+  # Iterate over columns and preprocess data
   for i in range(len(raw_data)):
+      # Drop column if requested
+      if preproc[i] == PREP_DROP:
+          print("Dropping column", i+1)
+          continue
 
-    # Drop column if requested
-    if preproc[i] == PREP_DROP:
-        print("Dropping", i+1)
-        continue
-
-    # Perform data standardization
-    if preproc[i] == PREP_STD:
-        prep_data[0, prep_c] = (raw_data[i] - means) / std_devs
-
-    # Perform data normalization
-    elif preproc[i] == PREP_NORM:
-        prep_data[0, prep_c] = (raw_data[i] - mins) / ranges
-
-    # Copy data over if no preprocessing is requested
-    elif preproc[i] == PREP_NONE:
-        prep_data[0, prep_c] = raw_data[i]
-
-    # Error if code not recognized
-    else:
-        raise Exception("Preprocessing code not recognized")
-
-  # Copy header (and preprocessing constants) and increment preprocessing column index
-    prep_means.append(means)
-    prep_std_devs.append(std_devs)
-    prep_mins.append(mins)
-    prep_ranges.append(ranges)
-    prep_c += 1
-
-  return prep_data
+      # Otherwise, append the column value to the preprocessed data
+      prep_data = np.append(prep_data, raw_data[i])
+   
+  return normalizeData(mins, ranges, prep_data)
+  
 loaded_model = load_model("PoCmodel.h5")
 for i in range(8):
   testFilePath = os.path.join('output/testing/',os.listdir('output/testing/')[i])
@@ -216,6 +199,8 @@ for i in range(8):
     data = next(csv_reader)[1:]
   data = np.array(data).astype(float)
   prepped_data = preprocessing(data)
+  prepped_data = prepped_data.reshape(1, -1)
+
   predictions = loaded_model.predict(prepped_data)
   print(predictions)
 
