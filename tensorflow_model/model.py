@@ -63,22 +63,22 @@ from sklearn import metrics
 # model.add(Dropout(0.3))
 # model.add(Dense(32, activation='relu'))  #hidden layer 2
 # model.add(Dropout(0.3))
-# model.add(Dense(16, activation='relu'))
-# model.add(Dropout(0.3))
-# model.add(Dense(8, activation='relu'))
-# model.add(Dropout(0.3))
+# # model.add(Dense(16, activation='relu'))
+# # model.add(Dropout(0.3))
+# # model.add(Dense(8, activation='relu'))
+# # model.add(Dropout(0.3))
 
 
-# model.add(Dense(2, activation='softmax')) #output is the number of different categories we are trying to calculate between 
+# model.add(Dense(5, activation='softmax')) #output is the number of different categories we are trying to calculate between 
 
 # model.compile(optimizer=Adam(learning_rate=0.0001), loss='categorical_crossentropy', metrics=['accuracy'])
 
-# labels = ['coffee', 'rum']
+# labels = ['coffee', 'irishcream', 'kahlua', 'rum', 'test']
 
 # early_stop = EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
 
-# reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=2, min_lr=0.0001)
-# model.fit(X_train_reshape, y_train_one_hot, epochs=50, batch_size=8, validation_data=(X_valid_reshape, y_valid_one_hot), callbacks=[early_stop, reduce_lr])
+# reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.2, patience=2, min_lr=0.0001)
+# model.fit(X_train_reshape, y_train_one_hot, epochs=250, batch_size=8, validation_data=(X_valid_reshape, y_valid_one_hot), callbacks=[early_stop, reduce_lr])
 
 # model.save("PoCmodel.h5")
 
@@ -87,9 +87,9 @@ from sklearn import metrics
 def normalizeData(mins, ranges, raw_data):
   return (raw_data - mins) / ranges
 
-mins = np.array([17574.5, 17566.8, 30403.4, 30394.0, 30411.1, 23203.0, 23228.2, 23252.9, 19406.1, 19402.1, 19395.6, 12410.9, 12411.1, 12407.8, 20933.8, 20928.1, 27028.0, 27000.3, 8457.5, 8458.0, 8459.2, 13884.2, 13889.3, 13886.2, 23073.8, 23059.4, 23047.7, 39916.7, 39889.8, 39894.5, 18968.4, 18964.8, 40654.2, 40650.3, 34637.4, 34656.7, 34618.0, 191146.8, 191325.0, 190965.8, 93533.5, 93496.0, 93418.9, 91400.4, 91433.4, 91361.8, 118789.8, 118813.5, 1550433.8, 1524820.8, 48062.5, 48098.9, 48109.6, 16729.0, 16729.2, 16731.6, 1092.5, 1092.5, 5061.7, 5066.3, 5070.6, 27324.3, 27363.9, 24.71, 41.39])
+mins = np.array([16456.6, 16457.8, 12055.9, 12051.2, 12050.1, 10586.2, 10582.7, 10581.9, 15426.9, 15426.8, 15423.5, 7419.4, 7418.4, 7418.2, 20077.8, 20073.2, 27028.0, 27000.3, 7689.3, 7688.6, 7688.2, 6639.7, 6640.9, 6641.3, 12181.1, 12181.3, 12178.3, 22771.9, 22777.8, 22776.5, 18968.4, 18964.8, 35323.0, 35311.1, 26581.3, 26569.1, 26546.4, 94231.5, 94230.0, 94321.9, 52542.7, 52518.6, 52475.5, 64815.3, 64845.7, 64867.6, 116893.2, 116778.5, 1480640.8, 1524820.8, 36167.1, 36186.9, 36183.8, 14611.9, 14611.9, 14611.4, 1092.5, 1092.5, 3815.4, 3817.8, 3819.1, 25619.3, 25616.0, 22.63, 36.06])
 
-ranges = np.array([710.3, 704.5, 13004.5, 13062.6, 13046.8, 13818.7, 13773.2, 13747.7, 1110.4, 1117.8, 1111.5, 5403.8, 5407.1, 5402.4, 175.5, 187.3, 285.6, 277.8, 180.2, 177.5, 177.2, 1807.8, 1803.8, 1814.2, 6019.7, 6030.6, 6031.1, 12391.8, 12411.1, 12401.6, 444.2, 441.6, 903.5, 898.6, 6506.0, 6537.2, 6592.3, 19690.2, 19258.2, 20031.9, 11784.6, 12026.6, 12814.2, 20947.3, 20931.3, 20875.6, 2448.7, 2572.2, 217288.7, 178177.7, 9254.2, 9116.0, 9153.3, 603.4, 611.1, 603.2, 0.1, 0.1, 551.5, 551.2, 549.7, 1776.3, 1754.4, 2.38, 24.87])
+ranges = np.array([5233.3, 5235.3, 31352.0, 31405.4, 31407.8, 95530.4, 95782.4, 95643.6, 7959.1, 7955.3, 7959.5, 17726.2, 17720.3, 17718.6, 2963.4, 2968.0, 7679.8, 7627.0, 6942.7, 6944.8, 6943.9, 40865.6, 40890.4, 40898.4, 77095.4, 77041.6, 77066.7, 100566.7, 100411.4, 100462.5, 15347.9, 15376.1, 9433.4, 9408.1, 44024.5, 44495.8, 44169.4, 253968.8, 254031.4, 253207.5, 84372.3, 84405.9, 84442.7, 264897.2, 264456.4, 265311.3, 17935.2, 18212.0, 433117.4, 283712.8, 80863.0, 80881.2, 80827.8, 13840.5, 13841.5, 13834.7, 0.1, 0.1, 19949.9, 19984.4, 20006.4, 13795.5, 13784.7, 6.04, 30.2])
 
 print(len(mins))
 print(len(ranges))
@@ -190,7 +190,7 @@ def preprocessing(raw_data): #data type = np array
   return normalizeData(mins, ranges, prep_data)
   
 loaded_model = load_model("PoCmodel.h5")
-for i in range(8):
+for i in range(10):
   testFilePath = os.path.join('output/testing/',os.listdir('output/testing/')[i])
   print(testFilePath)
   data = []
@@ -209,7 +209,7 @@ for i in range(8):
   predicted_labels = np.argmax(predictions, axis=1)
 
   # If you have class labels, you can map the predicted label indices back to their corresponding class labels
-  class_labels = ['coffee', 'rum']
+  class_labels = ['coffee', 'irishcream', 'kahlua', 'rum', 'test']
   predicted_class_labels = [class_labels[label_index] for label_index in predicted_labels]
 
   print("Predicted class labels:", predicted_class_labels)
