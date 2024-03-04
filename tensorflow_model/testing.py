@@ -9,8 +9,6 @@ from keras.models import load_model
 import serial 
 import seral.tools.list_ports
 
-import PySimpleGUI as sg # pip3 install pysimplegui
-import re
 """
 1. Take in input data. Control the amount of data that comes in (1 data point every 3 seconds).
 2. Pre-process the data point. 
