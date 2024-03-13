@@ -19,7 +19,7 @@ HOME_PATH = ".."              # Location of the working directory
 DATASET_PATH = "../dataset"   # Upload your .csv samples to this directory
 OUT_PATH = "../out"           # Where output files go (will be deleted and recreated)
 OUT_ZIP = "../out.zip"        # Where to store the zipped output files
-NANODATA_PATH = "../nano_data"    # Where one-line nano data is stored
+NANODATA_PATH = "nano"    # Where one-line nano data is stored
 
 # Do not change these settings!
 PREP_DROP = -1                      # Drop a column
@@ -39,8 +39,8 @@ test = 0
 testIter = 0
 kahlua = 0
 kahluaIter = 0
-irishCream = 0
-irishCreamIter= 0
+orange = 0
+orangeIter= 0
 coffee = 0
 coffeeIter = 0
 def writeToFile(filepath1, filepath2): #method that reads from current file, and writes to the appropriate file
@@ -58,35 +58,35 @@ if os.path.exists(DATASET_PATH):
   shutil.rmtree(DATASET_PATH)
 os.makedirs(DATASET_PATH)
 
-os.mkdir(os.path.join(DATASET_PATH, "rum"))
+# os.mkdir(os.path.join(DATASET_PATH, "rum"))
 os.mkdir(os.path.join(DATASET_PATH, "test"))
-os.mkdir(os.path.join(DATASET_PATH, "kahlua"))
-os.mkdir(os.path.join(DATASET_PATH, "irishCream"))
+# os.mkdir(os.path.join(DATASET_PATH, "kahlua"))
+os.mkdir(os.path.join(DATASET_PATH, "orange"))
 os.mkdir(os.path.join(DATASET_PATH, "coffee"))
 for filename in os.listdir(NANODATA_PATH):   #going through all the files in nano_data
   filepath = os.path.join(NANODATA_PATH, filename)
   if not os.path.isfile(filepath):
     continue
-  if(filename[0:3]=="rum"):                  #checking the label to pipeline the data to the accurate file
-    writeToFile(filepath, (os.path.join(DATASET_PATH, f"rum/rum_{rumIter}.csv")))
-    rum += 1
-    if rum%5 == 0:
-      rumIter += 1
-  elif(filename[0:4]=="test"):
+  # if(filename[0:3]=="rum"):                  #checking the label to pipeline the data to the accurate file
+  #   writeToFile(filepath, (os.path.join(DATASET_PATH, f"rum/rum_{rumIter}.csv")))
+  #   rum += 1
+  #   if rum%5 == 0:
+  #     rumIter += 1
+  elif(filename[0:4]=="unkn"):
     writeToFile(filepath, (os.path.join(DATASET_PATH, f"test/test_{testIter}.csv")))
     test += 1
     if test%5 == 0:
       testIter += 1
-  elif(filename[0:4]=="kahl"):
-    writeToFile(filepath, (os.path.join(DATASET_PATH, f"kahlua/kahlua_{kahluaIter}.csv")))
-    kahlua += 1
-    if kahlua%5 == 0:
-      kahluaIter += 1
-  elif(filename[0:4]=="Iris"):
-    writeToFile(filepath, (os.path.join(DATASET_PATH, f"irishCream/irishCream_{irishCreamIter}.csv")))
-    irishCream += 1
-    if irishCream%5 == 0:
-      irishCreamIter += 1
+  # elif(filename[0:4]=="kahl"):
+  #   writeToFile(filepath, (os.path.join(DATASET_PATH, f"kahlua/kahlua_{kahluaIter}.csv")))
+  #   kahlua += 1
+  #   if kahlua%5 == 0:
+  #     kahluaIter += 1
+  elif(filename[0:4]=="oran"):
+    writeToFile(filepath, (os.path.join(DATASET_PATH, f"orange/orange_{orangeIter}.csv")))
+    orange += 1
+    if orange%5 == 0:
+      orangeIter += 1
   elif(filename[0:4]=="coff"):
     writeToFile(filepath, (os.path.join(DATASET_PATH, f"coffee/coffee_{coffeeIter}.csv")))
     coffee += 1
@@ -98,7 +98,7 @@ for filename in os.listdir(NANODATA_PATH):   #going through all the files in nan
 print("Coffee: " + str(coffee))
 print("Test: " + str(test))
 print("Rum: " + str(rum))
-print("Irish Cream: " + str(irishCream))
+print("Irish Cream: " + str(orange))
 print("Kahlua: " + str(kahlua))
 
 ### Read in .csv files to construct one long multi-axis, time series data
@@ -315,6 +315,7 @@ print(prep_header)
 print("New data shape:", prep_data.shape)
 print("Means:", [float("{:.4f}".format(x)) for x in prep_means])
 print("Std devs:", [float("{:.4f}".format(x)) for x in prep_std_devs])
+# print("Max:", [float("{:.4f}".format(x)) for x in prep_max])
 print("Mins:", [float("{:.4f}".format(x)) for x in prep_mins])
 print("Ranges:", [float("{:.4f}".format(x)) for x in prep_ranges])
 
@@ -325,10 +326,10 @@ os.makedirs(OUT_PATH)
 
 
 ### Write out data to .csv files
-os.mkdir(os.path.join(OUT_PATH, "rum"))
+# os.mkdir(os.path.join(OUT_PATH, "rum"))
 os.mkdir(os.path.join(OUT_PATH, "test"))
-os.mkdir(os.path.join(OUT_PATH, "kahlua"))
-os.mkdir(os.path.join(OUT_PATH, "irishCream"))
+# os.mkdir(os.path.join(OUT_PATH, "kahlua"))
+os.mkdir(os.path.join(OUT_PATH, "orange"))
 os.mkdir(os.path.join(OUT_PATH, "coffee"))
 
 # Go through all the original filenames
@@ -372,10 +373,10 @@ def split_data(input_folder, output_folder, train_ratio=0.8, val_ratio=0.2, test
     os.mkdir(test_folder)
 
     for dir in os.listdir(output_folder):
-      os.makedirs(os.path.join(output_folder, dir, "rum"))
+      # os.makedirs(os.path.join(output_folder, dir, "rum"))
       os.makedirs(os.path.join(output_folder, dir, "test"))
-      os.makedirs(os.path.join(output_folder, dir, "kahlua"))
-      os.makedirs(os.path.join(output_folder, dir, "irishCream"))
+      # os.makedirs(os.path.join(output_folder, dir, "kahlua"))
+      os.makedirs(os.path.join(output_folder, dir, "orange"))
       os.makedirs(os.path.join(output_folder, dir, "coffee"))
 
     # Shuffle the input data

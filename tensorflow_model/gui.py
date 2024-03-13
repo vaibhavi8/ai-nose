@@ -8,7 +8,7 @@ import keras
 from keras.models import load_model
 
 import serial 
-import seral.tools.list_ports
+import serial.tools.list_ports
 
 
 class_labels = ['coffee', 'irishcream', 'kahlua', 'rum', 'test'] 
@@ -129,10 +129,10 @@ prediction = 'coffee' #random default value
 allProb = None
 
 # Command line arguments
-port = "/dev/ttyUSB0"  # Example port, replace with your actual port
+port = "/dev/cu.usbserial-110"  # Example port, replace with your actual port
 baudrate = 115200  # Example baudrate, replace with your actual baudrate
 
-testFilePath = os.path.join('output/testing/',os.listdir('output/testing/')[1])
+# testFilePath = os.path.join('output/testing/',os.listdir('output/testing/')[1])
 
 
 font = ("Arial", 20)
@@ -180,7 +180,7 @@ while True:
             received_data = rx_buf.decode('utf-8').strip().replace('\r', '')
 
             # Split values by comma
-            data_values = received_data.split(',')
+            data_values = received_data.split(';')
             raw_data = []
 
             for value in data_values:
@@ -188,6 +188,7 @@ while True:
                     raw_data.append(float(value))
                 except ValueError:
                     pass
+            raw_data = np.array(raw_data).astype(float)
             
             probability, prediction, allProb = processing(preprocessing(raw_data), class_labels) #using the model to output a prediction
             
@@ -214,6 +215,7 @@ while True:
             window['-STOP-'].update(visible=True)
 
             time.wait(2)
+            # continue
         except:
             pass
     if event == '-STOP-':  #terminate the testing code (no more sensor reading)
