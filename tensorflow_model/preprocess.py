@@ -21,6 +21,8 @@ OUT_PATH = "../out"           # Where output files go (will be deleted and recre
 OUT_ZIP = "../out.zip"        # Where to store the zipped output files
 NANODATA_PATH = "nano"    # Where one-line nano data is stored
 
+LABELS = ["unknown", "orange", "coffee"] #only make changes here during preprocessing
+
 # Do not change these settings!
 PREP_DROP = -1                      # Drop a column
 PREP_NONE = 0                       # Perform no preprocessing on column of data
@@ -33,16 +35,15 @@ fields = []
 header = list(range(1, 65))
 header += ["temperature", "humidity"]
 
-rum = 0
-rumIter = 0
-test = 0
-testIter = 0
-kahlua = 0
-kahluaIter = 0
-orange = 0
-orangeIter= 0
-coffee = 0
-coffeeIter = 0
+
+countFiles = {}
+
+for i in LABELS:
+  countFiles[i[0:3]] = [0, 0, i] #[sampleCount, fileCount, label]
+
+def makeFolders(path, LABELS):
+  for i in LABELS:
+    os.mkdir(os.path.join(path, i))
 def writeToFile(filepath1, filepath2): #method that reads from current file, and writes to the appropriate file
   with open(filepath1, 'r') as file1:
     first_line = file1.readline().strip()    #reading the first line
@@ -58,48 +59,24 @@ if os.path.exists(DATASET_PATH):
   shutil.rmtree(DATASET_PATH)
 os.makedirs(DATASET_PATH)
 
-# os.mkdir(os.path.join(DATASET_PATH, "rum"))
-os.mkdir(os.path.join(DATASET_PATH, "test"))
-# os.mkdir(os.path.join(DATASET_PATH, "kahlua"))
-os.mkdir(os.path.join(DATASET_PATH, "orange"))
-os.mkdir(os.path.join(DATASET_PATH, "coffee"))
+makeFolders(DATASET_PATH, LABELS)
 for filename in os.listdir(NANODATA_PATH):   #going through all the files in nano_data
   filepath = os.path.join(NANODATA_PATH, filename)
   if not os.path.isfile(filepath):
     continue
-  # if(filename[0:3]=="rum"):                  #checking the label to pipeline the data to the accurate file
-  #   writeToFile(filepath, (os.path.join(DATASET_PATH, f"rum/rum_{rumIter}.csv")))
-  #   rum += 1
-  #   if rum%5 == 0:
-  #     rumIter += 1
-  elif(filename[0:4]=="unkn"):
-    writeToFile(filepath, (os.path.join(DATASET_PATH, f"test/test_{testIter}.csv")))
-    test += 1
-    if test%5 == 0:
-      testIter += 1
-  # elif(filename[0:4]=="kahl"):
-  #   writeToFile(filepath, (os.path.join(DATASET_PATH, f"kahlua/kahlua_{kahluaIter}.csv")))
-  #   kahlua += 1
-  #   if kahlua%5 == 0:
-  #     kahluaIter += 1
-  elif(filename[0:4]=="oran"):
-    writeToFile(filepath, (os.path.join(DATASET_PATH, f"orange/orange_{orangeIter}.csv")))
-    orange += 1
-    if orange%5 == 0:
-      orangeIter += 1
-  elif(filename[0:4]=="coff"):
-    writeToFile(filepath, (os.path.join(DATASET_PATH, f"coffee/coffee_{coffeeIter}.csv")))
-    coffee += 1
-    if coffee%5 == 0:
-      coffeeIter += 1
+  key = filename[0:3]
+
+  if(countFiles.get(key)):
+    countFiles[key][0] += 1
+    label = countFiles[key][2]
+    if countFiles[key][0] %5==0:
+      countFiles[key][1] += 1
+      
+    writeToFile(filepath, (os.path.join(DATASET_PATH, f"{label}/{label}_{countFiles[key][1]}")))
   else:
     print("Error: category for " + filename + " not found.")
 
-print("Coffee: " + str(coffee))
-print("Test: " + str(test))
-print("Rum: " + str(rum))
-print("Irish Cream: " + str(orange))
-print("Kahlua: " + str(kahlua))
+print(countFiles)
 
 ### Read in .csv files to construct one long multi-axis, time series data
 
@@ -326,11 +303,7 @@ os.makedirs(OUT_PATH)
 
 
 ### Write out data to .csv files
-# os.mkdir(os.path.join(OUT_PATH, "rum"))
-os.mkdir(os.path.join(OUT_PATH, "test"))
-# os.mkdir(os.path.join(OUT_PATH, "kahlua"))
-os.mkdir(os.path.join(OUT_PATH, "orange"))
-os.mkdir(os.path.join(OUT_PATH, "coffee"))
+makeFolders(OUT_PATH, LABELS)
 
 # Go through all the original filenames
 row_index = 0
@@ -373,11 +346,7 @@ def split_data(input_folder, output_folder, train_ratio=0.8, val_ratio=0.2, test
     os.mkdir(test_folder)
 
     for dir in os.listdir(output_folder):
-      # os.makedirs(os.path.join(output_folder, dir, "rum"))
-      os.makedirs(os.path.join(output_folder, dir, "test"))
-      # os.makedirs(os.path.join(output_folder, dir, "kahlua"))
-      os.makedirs(os.path.join(output_folder, dir, "orange"))
-      os.makedirs(os.path.join(output_folder, dir, "coffee"))
+      makeFolders(os.path.join(output_folder, dir), LABELS)
 
     # Shuffle the input data
     for i in input_data:

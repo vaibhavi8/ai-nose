@@ -20,11 +20,11 @@ Install dependencies:
 
     python -m pip install pyserial
 """
-# class_labels = ['coffee', 'irishcream', 'kahlua', 'rum', 'test'] 
+LABELS = ['coffee', 'orange', 'unknown'] 
 i = 0
 testFilePath = os.path.join('output/testing/',os.listdir('output/testing/')[i])
 
-class_labels = ['coffee', 'orange', 'unknown'] 
+
 
 mins = np.array([11832.6, 11830.7, 6478.0, 6479.4, 6479.2, 4892.6, 4891.9, 4892.3, 8149.5, 8148.9, 8148.5, 4512.8, 4512.4, 4512.8, 17366.4, 17366.9, 20199.8, 20162.3, 4134.1, 4133.9, 4133.8, 2206.6, 2206.5, 2207.5, 7679.4, 7675.3, 7676.4, 16481.3, 16485.3, 16491.2, 13152.2, 13148.5, 29304.1, 29300.7, 21153.4, 21152.0, 21130.4, 33166.8, 33225.9, 33236.4, 29919.6, 29869.3, 29866.7, 20853.9, 20852.0, 20867.9, 84672.6, 84737.7, 1631367.4, 1548417.5, 23295.6, 23293.6, 23296.7, 10194.8, 10192.8, 10194.6, 1092.5, 1092.5, 2058.3, 2058.5, 2059.7, 18641.1, 18652.2, 27.77, 30.86])
 
@@ -130,11 +130,11 @@ def preprocessing(raw_data): #data type = np array
    
   return normalizeData(mins, ranges, prep_data).reshape(1, -1)
 
-def processing(prepped_data, class_labels):
+def processing(prepped_data, LABELS):
     predictions = loaded_model.predict(prepped_data)
     print(predictions)
     predicted_labels = np.argmax(predictions, axis=1)
-    predicted_class_labels = [class_labels[label_index] for label_index in predicted_labels]
+    predicted_class_labels = [LABELS[label_index] for label_index in predicted_labels]
     print("Predicted class labels:", predicted_class_labels)
 
 
@@ -193,7 +193,7 @@ try:
         prepped_data = preprocessing(raw_data)
 
         # Process the preprocessed data
-        processing(prepped_data, class_labels)
+        processing(prepped_data, LABELS)
 
         i += 1
 
