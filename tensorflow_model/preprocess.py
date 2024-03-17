@@ -1,16 +1,15 @@
 import csv
 import os
 import shutil
-import keras
+# import keras
 import numpy as np
-import matplotlib.pyplot as plt
-import splitfolders
-from keras.models import Sequential
-from keras.layers import Flatten, Dense
-from keras.utils import to_categorical
-from sklearn.preprocessing import LabelEncoder
-from keras.optimizers import Adam
-from sklearn import metrics
+# import matplotlib.pyplot as plt
+# from keras.models import Sequential
+# from keras.layers import Flatten, Dense
+# from keras.utils import to_categorical
+# from sklearn.preprocessing import LabelEncoder
+# from keras.optimizers import Adam
+# from sklearn import metrics
 import random
 
 # # # reading the data
@@ -21,7 +20,7 @@ OUT_PATH = "../out"           # Where output files go (will be deleted and recre
 OUT_ZIP = "../out.zip"        # Where to store the zipped output files
 NANODATA_PATH = "nano"    # Where one-line nano data is stored
 
-LABELS = ["unknown", "orange", "coffee"] #only make changes here during preprocessing
+LABELS = ["coffee", "sandalwood", "orange", "unknown"]#only make changes here during preprocessing
 
 # Do not change these settings!
 PREP_DROP = -1                      # Drop a column
@@ -322,7 +321,7 @@ for file_num, filename in enumerate(filenames):
       csv_writer.writerow(prep_data[row_index])
       row_index += 1
       
-def split_data(input_folder, output_folder, train_ratio=0.8, val_ratio=0.2, test_ratio=0.0):
+def split_data(input_folder, output_folder, train_ratio=0.9, val_ratio=0.1, test_ratio=0.0):
     input_data = []
     for dir in os.listdir(input_folder):
       dirPath = os.path.join(input_folder, dir)
