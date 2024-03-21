@@ -9,6 +9,7 @@ from keras.models import load_model
 
 import serial 
 import serial.tools.list_ports
+import joblib
 
 """
 1. Take in input data. Control the amount of data that comes in (1 data point every 3 seconds).
@@ -20,18 +21,20 @@ Install dependencies:
 
     python -m pip install pyserial
 """
-LABELS = ["coffee", "sandalwood", "orange", "unknown"]
+LABELS = ["coffee", "sandalwood","unknown"]
 i = 0
 testFilePath = os.path.join('output/testing/',os.listdir('output/testing/')[i])
 
 
 
-mins = np.array([11275.8, 11275.0, 8810.7, 8805.7, 8809.4, 4527.9, 4528.2, 4530.1, 10143.3, 10143.4, 10143.7, 6015.4, 6014.5, 6013.1, 16845.0, 16852.6, 19108.7, 19080.7, 4020.6, 4020.3, 4020.6, 2231.7, 2231.6, 2232.2, 7562.9, 7561.7, 7559.8, 18375.6, 18377.3, 18382.4, 11662.7, 11661.7, 29763.8, 29763.2, 20690.7, 20691.8, 20711.9, 35375.4, 35391.5, 35432.9, 36025.6, 35999.3, 36019.0, 17350.1, 17359.8, 17360.0, 83266.5, 83215.2, 1533263.9, 1565930.4, 23046.8, 23030.6, 23040.8, 9630.8, 9631.2, 9630.1, 1092.5, 1092.5, 2018.5, 2019.2, 2020.0, 19330.1, 19334.3, 27.32, 34.92])
+mins = np.array([8537.3, 8537.2, 3977.6, 3976.2, 3977.1, 2210.4, 2210.3, 2211.2, 6330.0, 6329.7, 6330.2, 2877.2, 2876.9, 2876.9, 13131.9, 13132.3, 13449.4, 13426.5, 2514.1, 2514.0, 2514.0, 1720.5, 1720.1, 1720.7, 6179.5, 6179.3, 6178.4, 12282.9, 12285.4, 12284.6, 8384.5, 8384.3, 25443.8, 25445.9, 17577.7, 17588.0, 17563.5, 23864.1, 23886.9, 23897.8, 17980.3, 17977.5, 17970.7, 9861.1, 9872.4, 9875.7, 64656.6, 64673.9, 1535636.8, 1497775.8, 23023.9, 23023.8, 23009.9, 6693.5, 6692.8, 6692.7, 1092.5, 1092.5, 1862.1, 1862.7, 1863.4, 14600.0, 14605.5, 26.06, 31.81])
 
-ranges = np.array([3209.3, 3210.4, 9959.1, 9970.8, 9963.9, 12560.6, 12560.5, 12558.7, 5557.6, 5555.9, 5556.9, 15592.1, 15597.8, 15597.3, 3127.7, 3116.4, 5828.6, 5853.3, 3306.3, 3306.6, 3306.8, 5392.9, 5394.6, 5396.2, 18437.7, 18435.0, 18430.5, 48666.5, 48649.3, 48594.0, 6109.0, 6103.1, 9123.3, 9161.5, 28700.6, 28724.8, 28675.7, 64109.4, 64103.3, 64123.5, 87784.0, 87747.3, 87640.1, 64943.3, 65031.6, 65031.4, 15573.6, 15139.5, 498372.6, 457764.5, 24127.9, 24146.9, 24173.8, 8013.3, 8010.2, 8030.6, 0.1, 0.1, 2913.9, 2915.9, 2917.6, 10602.0, 10603.4, 3.64, 25.88])
+ranges = np.array([688.8, 687.9, 1515.7, 1513.4, 1513.5, 608.6, 607.9, 607.4, 1536.5, 1538.0, 1537.4, 725.8, 726.6, 726.4, 704.6, 702.7, 955.6, 954.9, 391.0, 390.9, 391.0, 115.3, 115.5, 115.4, 941.2, 940.2, 939.3, 2532.8, 2536.4, 2539.9, 840.4, 841.1, 1745.2, 1985.2, 1750144.8, 1714393.2, 2761.7, 2798.4, 2820.3, 2811.5, 4863.9, 4852.5, 4850.3, 1452.5, 1442.5, 1451.3, 2666.4, 2562.3, 176421.7, 337518.8, 661.6, 649.7, 667.5, 1096.7, 1095.3, 1095.1, 0.1, 0.1, 156.3, 156.5, 156.8, 2354.9, 2355.3, 3.28, 19.03])
 
-loaded_model = load_model("PoCmodel.h5")
-
+# loaded_model = load_model("PoCmodel.h5") #neural network
+loaded_model = joblib.load('DecisionTreeModel.pkl') #decision tree
+# loaded_model = joblib.load('randomForestModel.pkl') #random forest
+# loaded_model = joblib.load('knnModel.pkl') #K-Nearest Neighbors
 def normalizeData(mins, ranges, raw_data):
   return (raw_data - mins) / ranges
 
@@ -132,10 +135,13 @@ def preprocessing(raw_data): #data type = np array
 
 def processing(prepped_data, LABELS):
     predictions = loaded_model.predict(prepped_data)
-    print(predictions)
-    predicted_labels = np.argmax(predictions, axis=1)
-    predicted_class_labels = [LABELS[label_index] for label_index in predicted_labels]
-    print("Predicted class labels:", predicted_class_labels)
+    print("Predicted Label:", predictions)
+
+    # ##Neural Network###
+    # print(predictions)
+    # predicted_labels = np.argmax(predictions, axis=1)
+    # predicted_class_labels = [LABELS[label_index] for label_index in predicted_labels]
+    # print("Predicted class labels:", predicted_class_labels)
 
 
 # Command line arguments

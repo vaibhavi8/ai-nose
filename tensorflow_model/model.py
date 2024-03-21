@@ -11,10 +11,10 @@ from keras.metrics import Accuracy, Precision, Recall
 from sklearn.preprocessing import LabelEncoder
 from keras.optimizers import Adam
 from sklearn import metrics
-
+#### Neural Network ####
 # ### FLATTENING DATA ###
 
-LABELS = ["coffee", "sandalwood", "orange", "unknown"]
+LABELS = ["coffee", "sandalwood", "unknown"]
 
 #gathering preprocessed data from training/validation/testing file
 trainingPath = 'output/train/'
@@ -46,6 +46,8 @@ label_encoder = LabelEncoder()
 
 y_train_encoded = label_encoder.fit_transform(y_train)
 y_valid_encoded = label_encoder.transform(y_valid)
+# y_train_encoded= np.eye(len(set(y_train)))[y_train]
+# y_valid_encoded= np.eye(len(set(y_valid)))[y_valid]
 
 num_classes = len(label_encoder.classes_)
 
@@ -63,25 +65,25 @@ model = Sequential()
 # model.add(Dropout(0.2))
 # model.add(Dense(64, activation='relu'))  #hidden layer 2
 # model.add(Dropout(0.2))
-# model.add(Dense(32, activation='relu'))
-# model.add(Dropout(0.2))
+model.add(Dense(32, activation='relu'))
+model.add(Dropout(0.2))
 model.add(Dense(16, activation='relu'))
 model.add(Dropout(0.2))
-model.add(Dense(8, activation='relu'))
-model.add(Dropout(0.2))
+# model.add(Dense(8, activation='relu'))
+# model.add(Dropout(0.2))
 # model.add(Dense(4, activation='relu'))
 # model.add(Dropout(0.2))
 
 
-model.add(Dense(len(LABELS), activation='softmax')) #output is the number of different categories we are trying to calculate between 
+model.add(Dense(len(LABELS), activation='softmax', kernel_regularizer='l2')) #output is the number of different categories we are trying to calculate between 
 
-model.compile(optimizer=Adam(learning_rate=0.0005), loss='categorical_crossentropy', metrics=["accuracy"])
+model.compile(optimizer=Adam(learning_rate=0.005), loss='categorical_crossentropy', metrics=["accuracy"])
 
 
-# early_stop = EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
+early_stop = EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
 
 reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.20, patience=2, min_lr=0.0001)
-model.fit(X_train, y_train_one_hot, epochs=130, batch_size=8, validation_data=(X_valid, y_valid_one_hot), callbacks=[reduce_lr] ) #callbacks=[early_stop, reduce_lr]
+model.fit(X_train, y_train_one_hot, epochs=130, batch_size=8, validation_data=(X_valid, y_valid_one_hot), callbacks=[reduce_lr, early_stop] ) #callbacks=[early_stop, reduce_lr]
 
 model.save("PoCmodel.h5")
 
