@@ -139,7 +139,7 @@ try:
                 
                 # Read bytes
                 rx_buf += ser.read()
-                print("Reading \n",rx_buf)
+                # print("Reading \n",rx_buf)
                 
                 # Look for an empty line
                 if rx_buf[-2:] == b'\r\n':
@@ -149,6 +149,7 @@ try:
                     buf_str = buf_str.replace('\r', '')
 
                     # Write contents to file
+                    print(buf_str)
                     write_csv(buf_str, out_dir, label)
                     rx_buf = b''
 

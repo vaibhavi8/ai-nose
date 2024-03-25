@@ -18,9 +18,9 @@ HOME_PATH = ".."              # Location of the working directory
 DATASET_PATH = "../dataset"   # Upload your .csv samples to this directory
 OUT_PATH = "../out"           # Where output files go (will be deleted and recreated)
 OUT_ZIP = "../out.zip"        # Where to store the zipped output files
-NANODATA_PATH = "sujus"    # Where one-line nano data is stored
+NANODATA_PATH = "benne"    # Where one-line nano data is stored
 
-LABELS = ["coffee", "sandalwood", "unknown"]#only make changes here during preprocessing
+LABELS = ["coffee", "sandalwood", "unknown", "fent"]#only make changes here during preprocessing
 
 # Do not change these settings!
 PREP_DROP = -1                      # Drop a column

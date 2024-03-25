@@ -10,6 +10,7 @@ from keras.callbacks import EarlyStopping, ReduceLROnPlateau
 from sklearn.preprocessing import LabelEncoder
 from keras.optimizers import Adam
 from sklearn import metrics
+import joblib
 
 ## TESTING ###
 
@@ -117,7 +118,8 @@ def preprocessing(raw_data): #data type = np array
    
   return normalizeData(mins, ranges, prep_data)
   
-loaded_model = load_model("PoCmodel.h5")
+# loaded_model = load_model("PoCmodel.h5")
+loaded_model = joblib.load('DecisionTreeModel.pkl') #decision tree
 for i in range(16):
   testFilePath = os.path.join('../testing/',os.listdir('../testing/')[i])
   print(testFilePath)
@@ -136,10 +138,10 @@ for i in range(16):
 
   # 'predictions' will contain the predicted probabilities for each class
   # If you want to get the predicted class label, you can use argmax to find the index of the class with the highest probability
-  predicted_labels = np.argmax(predictions, axis=1)
+  # predicted_labels = np.argmax(predictions, axis=1)
 
   # If you have class labels, you can map the predicted label indices back to their corresponding class labels
   class_labels = ["coffee", "orange", "sandalwood", "unknown"]
-  predicted_class_labels = [class_labels[label_index] for label_index in predicted_labels]
+  # predicted_class_labels = [class_labels[label_index] for label_index in predicted_labels]
 
-  print("Predicted class labels:", predicted_class_labels)
+  # print("Predicted class labels:", predicted_class_labels)
