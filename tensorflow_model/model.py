@@ -70,7 +70,7 @@ df_train['label'] = y_train_encoded
 x = df_train.drop('label', axis=1)
 y = df_train['label']
 
-X_train, X_valid, y_train, y_valid = train_test_split(x, y, test_size = 0.2, stratify=y)
+X_train, X_valid, y_train, y_valid = train_test_split(x, y, test_size = 0.1, stratify=y)
 
 encoder = OneHotEncoder()
 encoder.fit(np.array(y_train).reshape(-1, 1))  # Reshape y_train to a column vector
@@ -102,24 +102,47 @@ model.add(Dropout(0.2))
 
 model.add(Dense(len(LABELS), activation='softmax', kernel_regularizer='l2')) #output is the number of different categories we are trying to calculate between 
 
-model.compile(optimizer=Adam(learning_rate=0.0001), loss='categorical_crossentropy', metrics=["accuracy"])
+model.compile(optimizer=Adam(learning_rate=0.0001), metrics=["accuracy"], loss='categorical_crossentropy')
 
 
 early_stop = EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
 
 reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.20, patience=2, min_lr=0.0001)
-model.fit(X_train, y_train_one_hot, epochs=130, batch_size=8, validation_data=(X_valid, y_valid_one_hot), callbacks=[reduce_lr, early_stop] ) #callbacks=[early_stop, reduce_lr]
+history = model.fit(X_train, y_train_one_hot, epochs=130, batch_size=8, validation_data=(X_valid, y_valid_one_hot), callbacks=[reduce_lr, early_stop] ) #callbacks=[early_stop, reduce_lr]
+
+# # Create a figure with two subplots
+# fig, axes = plt.subplots(1, 2, figsize=(18, 6))
+
+# # Plot training and validation accuracy
+# axes[0].plot(history.history['accuracy'], label='Training Accuracy')
+# axes[0].plot(history.history['val_accuracy'], label='Validation Accuracy')
+# axes[0].set_title('Training and Validation Accuracy')
+# axes[0].set_xlabel('Epoch')
+# axes[0].set_ylabel('Accuracy')
+# axes[0].legend()
+
+# # Plot training and validation loss
+# axes[1].plot(history.history['loss'], label='Training Loss')
+# axes[1].plot(history.history['val_loss'], label='Validation Loss')
+# axes[1].set_title('Training and Validation Loss')
+# axes[1].set_xlabel('Epoch')
+# axes[1].set_ylabel('Loss')
+# axes[1].legend()
+
+# # Show the plots
+# plt.tight_layout()
+# plt.show()
 
 model.save("PoCmodel.h5")
 
 ### DECISION TREE###
 
-clf = DecisionTreeClassifier(max_leaf_nodes=12, random_state=42)
+dec_tree = DecisionTreeClassifier(max_leaf_nodes=12, random_state=42, criterion='gini')
 
-clf.fit(X_train, y_train)
+dec_tree.fit(X_train, y_train)
 
-train_predictions = clf.predict(X_train)
-y_pred_encoded = clf.predict(X_valid)
+train_predictions = dec_tree.predict(X_train)
+y_pred_encoded = dec_tree.predict(X_valid)
 
 train_accuracy = accuracy_score(y_train, train_predictions)
 valid_accuracy = accuracy_score(y_valid, y_pred_encoded)
@@ -132,21 +155,22 @@ print(classification_report(y_valid, y_pred_encoded))
 X_train_df = pd.DataFrame(X_train, columns=[f'feature_{i}' for i in range(X_train.shape[1])])
 X_valid_df = pd.DataFrame(X_valid, columns=[f'feature_{i}' for i in range(X_valid.shape[1])])
 
-class_names_list = encoder.categories_[0].tolist()
+class_names_list = LABELS
 
-joblib.dump(clf, "TreeNoTorH.pkl")
+
+joblib.dump(dec_tree, "DecisionTreeModel.pkl")
 # print(class_names_list)
 
 # # Visualize the decision tree (optional)
 # plt.figure(figsize=(14, 8))
-# plot_tree(clf, filled=True, feature_names=X_train_df.columns.tolist(), class_names=class_names_list)
+# plot_tree(dec_tree, filled=True, feature_names=X_train_df.columns.tolist(), class_names=class_names_list)
 # plt.show()
 
-### DECISION TREE WITH GRADIENT BOOSTING ###
-clf = GradientBoostingClassifier(n_estimators=10, learning_rate=0.01, max_depth=4, random_state=42)
-clf.fit(X_train, y_train)
-y_pred_encoded = clf.predict(X_valid)
-train_predictions = clf.predict(X_train)
+# ### DECISION TREE WITH GRADIENT BOOSTING ###
+grad_boost = GradientBoostingClassifier(n_estimators=5, learning_rate=0.001, max_depth=6, random_state=42, loss='log_loss')
+grad_boost.fit(X_train, y_train)
+y_pred_encoded = grad_boost.predict(X_valid)
+train_predictions = grad_boost.predict(X_train)
 
 train_accuracy = accuracy_score(y_train, train_predictions)
 valid_accuracy = accuracy_score(y_valid, y_pred_encoded)
@@ -157,30 +181,33 @@ print("Decision Tree with Gradient Boosting Validation Accuracy: ", valid_accura
 print("Decision Tree with Gradient Boosting Classification Report")
 print(classification_report(y_valid, y_pred_encoded))
 
-joblib.dump(clf, "GradientBoosted.pkl")
+joblib.dump(grad_boost, "GradientBoosted.pkl")
 
 ###  RANDOM FOREST ###
 
-clf = RandomForestClassifier(n_estimators=4, max_depth=6, random_state=42)
+random_forest = RandomForestClassifier(n_estimators=8, max_depth=5, random_state=42, criterion='log_loss')
 
-clf.fit(X_train, y_train)
+random_forest.fit(X_train, y_train)
 
 
-y_pred = clf.predict(X_valid)
+y_pred = random_forest.predict(X_valid)
+y_train_pred = random_forest.predict(X_train)
 
-accuracy = accuracy_score(y_valid, y_pred)
-print("Random Forest Accuracy:", accuracy)
+train_accuracy = accuracy_score(y_train, y_train_pred)
+valid_accuracy = accuracy_score(y_valid, y_pred)
+print("Random Forest Train Accuracy:", train_accuracy)
+print("Random Forest Valid Accuracy:", valid_accuracy)
 print("Random Forest Classification Report:")
 print(classification_report(y_valid, y_pred))
 
-joblib.dump(clf, 'randomForestModel.pkl')
+joblib.dump(random_forest, 'randomForestModel.pkl')
 
 
 # X_train_df = pd.DataFrame(X_train, columns=[f'feature_{i}' for i in range(X_train.shape[1])])
 # X_valid_df = pd.DataFrame(X_valid, columns=[f'feature_{i}' for i in range(X_valid.shape[1])])
 
 # # Choose a specific tree from the forest (e.g., the first tree)
-# tree_to_visualize = clf.estimators_[1]
+# tree_to_visualize = random_forest.estimators_[1]
 
 # # Visualize the chosen tree
 # plt.figure(figsize=(14, 8))
