@@ -157,6 +157,8 @@ print("Decision Tree with Gradient Boosting Validation Accuracy: ", valid_accura
 print("Decision Tree with Gradient Boosting Classification Report")
 print(classification_report(y_valid, y_pred_encoded))
 
+joblib.dump(clf, "GradientBoosted.pkl")
+
 ###  RANDOM FOREST ###
 
 clf = RandomForestClassifier(n_estimators=4, max_depth=6, random_state=42)

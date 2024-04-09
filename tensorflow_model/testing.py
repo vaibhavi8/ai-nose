@@ -44,6 +44,7 @@ one_hot_encoder = OneHotEncoder()
 
 # loaded_model = [load_model("PoCmodel.h5"), "NN"] #neural network
 loaded_model = [joblib.load('logisticRegression.pkl'), "LogReg"] #decision tree
+# loaded_model = [joblib.load('GradientBoosted'), "GB"] #gradient boosted
 # loaded_model = [joblib.load('DecisionTreeModel.pkl'), "Tree"] #decision tree
 # loaded_model = [joblib.load('randomForestModel.pkl'), "RF"] #random forest
 # loaded_model =[ joblib.load('knnModel.pkl'), "KNN"] #K-Nearest Neighbors
