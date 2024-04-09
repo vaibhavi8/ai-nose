@@ -7,6 +7,9 @@ import numpy as np
 import keras
 from keras.models import load_model
 
+from sklearn.preprocessing import OneHotEncoder
+
+
 import serial 
 import serial.tools.list_ports
 import joblib
@@ -31,16 +34,20 @@ testFilePath = os.path.join('output/testing/',os.listdir('output/testing/')[i])
 
 # ranges = np.array([688.8, 687.9, 1515.7, 1513.4, 1513.5, 608.6, 607.9, 607.4, 1536.5, 1538.0, 1537.4, 725.8, 726.6, 726.4, 704.6, 702.7, 955.6, 954.9, 391.0, 390.9, 391.0, 115.3, 115.5, 115.4, 941.2, 940.2, 939.3, 2532.8, 2536.4, 2539.9, 840.4, 841.1, 1745.2, 1985.2, 1750144.8, 1714393.2, 2761.7, 2798.4, 2820.3, 2811.5, 4863.9, 4852.5, 4850.3, 1452.5, 1442.5, 1451.3, 2666.4, 2562.3, 176421.7, 337518.8, 661.6, 649.7, 667.5, 1096.7, 1095.3, 1095.1, 0.1, 0.1, 156.3, 156.5, 156.8, 2354.9, 2355.3, 3.28, 19.03])
 
-mins = np.array([13654.6, 13640.2, 13175.2, 13179.1, 13170.4, 15486.5, 15487.1, 15497.3, 15587.8, 15582.0, 15586.1, 8329.7, 8329.8, 8331.2, 18615.6, 18611.4, 22576.7, 22558.6, 6305.0, 6304.7, 6304.6, 4522.6, 4523.2, 4523.2, 15074.7, 15072.9, 15073.1, 29876.3, 29883.6, 29886.9, 17184.9, 17166.1, 36167.3, 36215.6, 1514926.5, 1457085.9, 31652.4, 73704.2, 73799.8, 73690.0, 64843.5, 64788.8, 64851.0, 38597.3, 38634.8, 38674.2, 96352.6, 96232.6, 1525211.2, 1491958.1, 41202.4, 41238.8, 41268.0, 15972.9, 15972.2, 15970.2, 1092.5, 1092.5, 4357.9, 4360.7, 4362.5, 27946.4, 27951.8, 24.22, 36.52])
+mins = np.array([8537.3, 8537.2, 3977.6, 3976.2, 3977.1, 2210.4, 2210.3, 2211.2, 6330.0, 6329.7, 6330.2, 2877.2, 2876.9, 2876.9, 13131.9, 13132.3, 13449.4, 13426.5, 2514.1, 2514.0, 2514.0, 1502.6, 1502.2, 1502.9, 4454.6, 4454.6, 4454.8, 9418.5, 9417.1, 9417.7, 8384.5, 8384.3, 25443.8, 25445.9, 15045.3, 15048.7, 15041.6, 23136.3, 23147.7, 23174.4, 17980.3, 17977.5, 17970.7, 9858.7, 9860.5, 9864.4, 64656.6, 64673.9, 1477884.1, 1485443.4, 18127.2, 18128.5, 18129.8, 6693.5, 6692.8, 6692.7, 1092.5, 1092.5, 1743.4, 1743.9, 1744.6, 14600.0, 14605.5, 22.38, 30.99])
 
-ranges = np.array([3008.8, 3020.6, 13507.8, 13485.3, 13506.2, 27721.2, 27695.5, 27726.3, 11843.2, 11842.8, 11836.1, 5562.0, 5560.5, 5564.1, 3107.3, 3104.9, 5338.1, 5336.9, 3664.2, 3663.5, 3663.9, 9621.5, 9627.1, 9631.8, 29240.0, 29241.8, 29228.4, 38007.1, 38029.2, 37990.7, 5605.3, 5617.6, 8180.7, 8122.9, 330322.6, 362224.6, 13541.2, 73157.0, 73043.3, 72863.7, 85308.8, 84817.9, 84848.0, 35327.3, 35333.0, 35308.8, 23054.7, 23560.6, 323475.8, 332369.8, 39404.9, 39415.5, 39378.7, 8552.5, 8534.8, 8526.3, 0.1, 0.1, 4715.4, 4721.2, 4724.4, 7483.0, 7535.8, 5.64, 17.08])
+ranges = np.array([8126.1, 8123.6, 22705.4, 22688.2, 22699.5, 40997.3, 40972.3, 41012.4, 21101.0, 21095.1, 21092.0, 18730.3, 18735.4, 18733.5, 8591.0, 8584.0, 14465.4, 14469.0, 7455.1, 7454.2, 7454.5, 12641.5, 12648.1, 12652.1, 39860.1, 39860.1, 39846.7, 58464.9, 58495.7, 58459.9, 14405.7, 14399.4, 18904.2, 18892.6, 1830203.8, 1804261.8, 34346.0, 123724.9, 123695.4, 123379.3, 132172.0, 131629.2, 131728.3, 72434.7, 72530.9, 72527.0, 54750.7, 55119.3, 553752.4, 511775.1, 62480.1, 62525.8, 62516.9, 17831.9, 17814.2, 17803.8, 0.1, 0.1, 7329.9, 7338.0, 7342.3, 20829.4, 20882.1, 8.58, 29.81])
+
+one_hot_encoder = OneHotEncoder()
 
 
-loaded_model = [load_model("PoCmodel.h5"), "NN"] #neural network
-loaded_model = [joblib.load('DecisionTreeModel.pkl'), "Tree"] #decision tree
-loaded_model = [joblib.load('randomForestModel.pkl'), "RF"] #random forest
-loaded_model =[ joblib.load('knnModel.pkl'), "KNN"] #K-Nearest Neighbors
-loaded_model = [joblib.load('TreeNoTorH.pkl'), "TreeNoT"] #decision tree without temperature or humidity
+
+# loaded_model = [load_model("PoCmodel.h5"), "NN"] #neural network
+loaded_model = [joblib.load('logisticRegression.pkl'), "LogReg"] #decision tree
+# loaded_model = [joblib.load('DecisionTreeModel.pkl'), "Tree"] #decision tree
+# loaded_model = [joblib.load('randomForestModel.pkl'), "RF"] #random forest
+# loaded_model =[ joblib.load('knnModel.pkl'), "KNN"] #K-Nearest Neighbors
+# loaded_model = [joblib.load('TreeNoTorH.pkl'), "TreeNoT"] #decision tree without temperature or humidity
 
 
 
@@ -57,8 +64,8 @@ def preprocessing(raw_data): #data type = np array
   PREP_NORM = 2   
 
 
-  preproc = [PREP_NORM,   # 1
-           PREP_NORM,   # 2
+  preproc = [PREP_NORM,   # 1 ch 999
+           PREP_NORM,   # 2 ch 999
            PREP_NORM,   # 3
            PREP_NORM,   # 4
            PREP_NORM,   # 5
@@ -215,7 +222,10 @@ try:
 
 
         # # Preprocess the raw data
-        prepped_data = preprocessing(raw_data)
+        if loaded_model[1] == "NN" or loaded_model[1] == "KNN":
+            prepped_data = one_hot_encoder.transform(preprocessing(raw_data).reshape(1, -1))
+        else:
+            prepped_data = preprocessing(raw_data)
 
         # # Process the preprocessed data
         processing(prepped_data, LABELS)

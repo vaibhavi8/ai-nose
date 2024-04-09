@@ -18,10 +18,10 @@ HOME_PATH = ".."              # Location of the working directory
 DATASET_PATH = "../dataset"   # Upload your .csv samples to this directory
 OUT_PATH = "../out"           # Where output files go (will be deleted and recreated)
 OUT_ZIP = "../out.zip"        # Where to store the zipped output files
-NANODATA_PATH = "benne"    # Where one-line nano data is stored
+NANODATA_PATH = "mega_data"    # Where one-line nano data is stored
 
-LABELS = ["coffee", "sandalwood", "unknown", "fent"]#only make changes here during preprocessing
-
+LABELS = ["coffee", "sandalwood", "unknown"]#only make changes here during preprocessing
+# LABELS = ["coffee", "kahlua", "IrishCream", "rum", "test"]
 # Do not change these settings!
 PREP_DROP = -1                      # Drop a column
 PREP_NONE = 0                       # Perform no preprocessing on column of data
@@ -163,8 +163,8 @@ for i, name in enumerate(header):
 #     PREP_NORM: normalization (if data is non-Gaussian)
 
 # Change this to match your picks!
-preproc = [PREP_NORM,   # 1
-           PREP_NORM,   # 2
+preproc = [PREP_NORM,   # 1 ch 999
+           PREP_NORM,   # 2 ch 999
            PREP_NORM,   # 3
            PREP_NORM,   # 4
            PREP_NORM,   # 5
@@ -321,51 +321,51 @@ for file_num, filename in enumerate(filenames):
       csv_writer.writerow(prep_data[row_index])
       row_index += 1
       
-def split_data(input_folder, output_folder, train_ratio=0.8, val_ratio=0.2, test_ratio=0.0):
-    input_data = []
-    for dir in os.listdir(input_folder):
-      dirPath = os.path.join(input_folder, dir)
-      temp = []
-      for filename in os.listdir(dirPath):
-        temp.append(os.path.join(dir, filename))
-      input_data.append(temp)
+# def split_data(input_folder, output_folder, train_ratio=0.8, val_ratio=0.2):
+#     input_data = []
+#     for dir in os.listdir(input_folder):
+#       dirPath = os.path.join(input_folder, dir)
+#       temp = []
+#       for filename in os.listdir(dirPath):
+#         temp.append(os.path.join(dir, filename))
+#       input_data.append(temp)
     
-    # Create output folder if it doesn't exist and deleting it if it doesn exist
-    if os.path.exists(output_folder):
-        shutil.rmtree(output_folder)
-    os.makedirs(output_folder)
+#     # Create output folder if it doesn't exist and deleting it if it doesn exist
+#     if os.path.exists(output_folder):
+#         shutil.rmtree(output_folder)
+#     os.makedirs(output_folder)
 
-    # Create train, val, and test folders
-    train_folder = os.path.join(output_folder, 'train')
-    val_folder = os.path.join(output_folder, 'val')
-    test_folder = os.path.join(output_folder, 'testing')
+#     # Create train, val, and test folders
+#     train_folder = os.path.join(output_folder, 'train')
+#     val_folder = os.path.join(output_folder, 'val')
+#     # test_folder = os.path.join(output_folder, 'testing')
 
-    os.mkdir(train_folder)
-    os.mkdir(val_folder)
-    os.mkdir(test_folder)
+#     os.mkdir(train_folder)
+#     os.mkdir(val_folder)
+#     # os.mkdir(test_folder)
 
-    for dir in os.listdir(output_folder):
-      makeFolders(os.path.join(output_folder, dir), LABELS)
+#     for dir in os.listdir(output_folder):
+#       makeFolders(os.path.join(output_folder, dir), LABELS)
 
-    # Shuffle the input data
-    for i in input_data:
-      random.shuffle(i)
-      num_samples = len(i)
-      num_train = int(train_ratio * num_samples)
-      num_val = int(val_ratio * num_samples)
-      # num_test = int(test_ratio * num_samples)
+#     # Shuffle the input data
+#     for i in input_data:
+#       random.shuffle(i)
+#       num_samples = len(i)
+#       num_train = int(train_ratio * num_samples)
+#       num_val = int(val_ratio * num_samples)
+#       # num_test = int(test_ratio * num_samples)
 
-      train_data= i[:num_train]
-      val_data=i[num_train:num_train + num_val]
-      test_data=i[num_train + num_val:]
+#       train_data= i[:num_train]
+#       val_data=i[num_train:num_train + num_val]
+#       # test_data=i[num_train + num_val:]
 
-      copy_files(train_data, train_folder, input_folder)
-      copy_files(val_data, val_folder, input_folder)
-      copy_files(test_data, test_folder, input_folder)
+#       copy_files(train_data, train_folder, input_folder)
+#       copy_files(val_data, val_folder, input_folder)
+#       # copy_files(test_data, test_folder, input_folder)
 
-def copy_files(data, destination_folder, input_folder):
-    for i in data:
-        filepath = os.path.join(input_folder,i)
-        shutil.copy(filepath, os.path.join(destination_folder, i))
+# def copy_files(data, destination_folder, input_folder):
+#     for i in data:
+#         filepath = os.path.join(input_folder,i)
+#         shutil.copy(filepath, os.path.join(destination_folder, i))
 
-split_data('../out', 'output')
+# split_data('../out', 'output')
