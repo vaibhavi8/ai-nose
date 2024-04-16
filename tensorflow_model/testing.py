@@ -13,6 +13,8 @@ from sklearn.preprocessing import OneHotEncoder
 import serial 
 import serial.tools.list_ports
 import joblib
+import warnings
+warnings.filterwarnings('ignore', category=UserWarning)
 
 """
 1. Take in input data. Control the amount of data that comes in (1 data point every 3 seconds).
@@ -24,9 +26,9 @@ Install dependencies:
 
     python -m pip install pyserial
 """
-LABELS = ["coffee", "sandalwood","unknown"]
+LABELS = ["coffee", "sandalwood", "unknown"]
 i = 0
-testFilePath = os.path.join('output/testing/',os.listdir('output/testing/')[i])
+testFilePath = os.path.join('output/testing/',os.listdir('../testing/')[i])
 
 
 # ###WORKIING###
@@ -43,9 +45,9 @@ one_hot_encoder = OneHotEncoder()
 
 
 # loaded_model = [load_model("PoCmodel.h5"), "NN"] #neural network
-loaded_model = [joblib.load('logisticRegression.pkl'), "LogReg"] #decision tree
-# loaded_model = [joblib.load('GradientBoosted'), "GB"] #gradient boosted
-# loaded_model = [joblib.load('DecisionTreeModel.pkl'), "Tree"] #decision tree
+# loaded_model = [joblib.load('logisticRegression.pkl'), "LogReg"] #logistic regression
+# loaded_model = [joblib.load('GradientBoosted.pkl'), "GB"] #gradient boosted
+loaded_model = [joblib.load('DecisionTreeModel.pkl'), "Tree"] #decision tree
 # loaded_model = [joblib.load('randomForestModel.pkl'), "RF"] #random forest
 # loaded_model =[ joblib.load('knnModel.pkl'), "KNN"] #K-Nearest Neighbors
 # loaded_model = [joblib.load('TreeNoTorH.pkl'), "TreeNoT"] #decision tree without temperature or humidity
@@ -161,11 +163,11 @@ def processing(prepped_data, LABELS):
         predicted_class_labels = [LABELS[label_index] for label_index in predicted_labels]
         print("Predicted class labels:", predicted_class_labels)
     else:
-        print("Predicted Label:", predictions)
+        print("Predicted Label:", LABELS[predictions[0]])
 
 
 # Command line arguments
-port = "/dev/cu.usbserial-1110"  # Example port, replace with your actual port
+port = "/dev/cu.usbserial-110"  # Example port, replace with your actual port
 baudrate = 115200  # Example baudrate, replace with your actual baudrate
 
 # Open serial port
