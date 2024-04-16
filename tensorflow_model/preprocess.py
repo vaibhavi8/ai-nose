@@ -19,7 +19,7 @@ DATASET_PATH = "../dataset"   # Upload your .csv samples to this directory
 OUT_PATH = "../out"           # Where output files go (will be deleted and recreated)
 OUT_ZIP = "../out.zip"        # Where to store the zipped output files
 NANODATA_PATH = "mega_data"    # Where one-line nano data is stored
-
+# LABELS = ["heroin", "cocaine", "fentanyl", "meth"]
 LABELS = ["coffee", "sandalwood", "unknown"]#only make changes here during preprocessing
 # LABELS = ["coffee", "kahlua", "IrishCream", "rum", "test"]
 # Do not change these settings!
@@ -219,7 +219,7 @@ preproc = [PREP_NORM,   # 1 ch 999
            PREP_NORM,   # 54
            PREP_NORM,   # 55
            PREP_NORM,   # 56
-           PREP_DROP,   # 57
+           PREP_NORM,   # 57
            PREP_NORM,   # 58
            PREP_NORM,   # 59
            PREP_NORM,   # 60

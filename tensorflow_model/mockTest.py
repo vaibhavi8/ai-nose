@@ -11,19 +11,21 @@ from sklearn.preprocessing import LabelEncoder
 from keras.optimizers import Adam
 from sklearn import metrics
 import joblib
-
+import warnings
+warnings.filterwarnings('ignore', category=UserWarning)
 ## TESTING ###
 
 def normalizeData(mins, ranges, raw_data):
   return (raw_data - mins) / ranges
-mins = np.array([13021.2, 13027.7, 9867.3, 9870.7, 9867.1, 8382.5, 8379.6, 8377.7, 11807.0, 11804.2, 11804.2, 8243.1, 8241.2, 8243.3, 18508.6, 18505.4, 21621.9, 21609.9, 5272.8, 5272.4, 5272.5, 2727.5, 2727.5, 2728.7, 9318.4, 9315.8, 9313.4, 25743.0, 25742.2, 25748.3, 14938.4, 14935.5, 32740.5, 32735.1, 30230.2, 30272.1, 30265.7, 51209.7, 51264.1, 51279.1, 47878.9, 47856.3, 47904.2, 29830.5, 29883.2, 29892.7, 86227.5, 86020.4, 1533263.9, 1565930.4, 25931.8, 25887.3, 25926.9, 12724.3, 12724.8, 12722.8, 1092.5, 1092.5, 2733.8, 2735.4, 2737.4, 24254.1, 24256.2, 27.84, 34.92])
+mins = np.array([8537.3, 8537.2, 3977.6, 3976.2, 3977.1, 2210.4, 2210.3, 2211.2, 6330.0, 6329.7, 6330.2, 2877.2, 2876.9, 2876.9, 13131.9, 13132.3, 13449.4, 13426.5, 2514.1, 2514.0, 2514.0, 1502.6, 1502.2, 1502.9, 4454.6, 4454.6, 4454.8, 9418.5, 9417.1, 9417.7, 8384.5, 8384.3, 25443.8, 25445.9, 15045.3, 15048.7, 15041.6, 23136.3, 23147.7, 23174.4, 17980.3, 17977.5, 17970.7, 9858.7, 9860.5, 9864.4, 64656.6, 64673.9, 1477884.1, 1485443.4, 18127.2, 18128.5, 18129.8, 6693.5, 6692.8, 6692.7, 1092.5, 1092.5, 1743.4, 1743.9, 1744.6, 14600.0, 14605.5, 22.38, 30.99])
 
-ranges = np.array([1463.9, 1457.7, 8902.5, 8905.8, 8906.2, 8706.0, 8709.1, 8711.1, 3893.9, 3895.1, 3896.4, 13364.4, 13371.1, 13367.1, 1464.1, 1463.6, 3315.4, 3324.1, 2054.1, 2054.5, 2054.9, 4897.1, 4898.7, 4899.7, 16682.2, 16680.9, 16676.9, 41299.1, 41284.4, 41228.1, 2833.3, 2829.3, 6146.6, 6189.6, 19161.1, 19144.5, 19121.9, 48275.1, 48230.7, 48277.3, 75930.7, 75890.3, 75754.9, 52462.9, 52508.2, 52498.7, 12612.6, 12334.3, 498372.6, 457764.5, 21242.9, 21290.2, 21287.7, 4919.8, 4916.6, 4937.9, 0.1, 0.1, 2198.6, 2199.7, 2200.2, 5678.0, 5681.5, 3.12, 25.88])
+ranges = np.array([8126.1, 8123.6, 22705.4, 22688.2, 22699.5, 40997.3, 40972.3, 41012.4, 21101.0, 21095.1, 21092.0, 18730.3, 18735.4, 18733.5, 8591.0, 8584.0, 14465.4, 14469.0, 7455.1, 7454.2, 7454.5, 12641.5, 12648.1, 12652.1, 39860.1, 39860.1, 39846.7, 58464.9, 58495.7, 58459.9, 14405.7, 14399.4, 18904.2, 18892.6, 1830203.8, 1804261.8, 34346.0, 123724.9, 123695.4, 123379.3, 132172.0, 131629.2, 131728.3, 72434.7, 72530.9, 72527.0, 54750.7, 55119.3, 553752.4, 511775.1, 62480.1, 62525.8, 62516.9, 17831.9, 17814.2, 17803.8, 0.1, 0.1, 7329.9, 7338.0, 7342.3, 20829.4, 20882.1, 8.58, 29.81])
 
 # print(len(mins))
 # print(len(ranges))
 
 def preprocessing(raw_data): #data type = np array
+
   header = len(raw_data)
 
    #we want it to only check for dropped columns
@@ -118,9 +120,15 @@ def preprocessing(raw_data): #data type = np array
    
   return normalizeData(mins, ranges, prep_data)
   
-# loaded_model = load_model("PoCmodel.h5")
-loaded_model = joblib.load('DecisionTreeModel.pkl') #decision tree
-for i in range(16):
+class_labels = ["coffee", "sandalwood", "unknown"]# loaded_model = [load_model("models/PoCmodel.h5"), "NN"] #neural network
+# loaded_model = [joblib.load('models/logisticRegression.pkl'), "LogReg"] #logistic regression
+# loaded_model = [joblib.load('models/GradientBoosted.pkl'), "GB"] #gradient boosted
+loaded_model = [joblib.load('models/DecisionTreeModel.pkl'), "Tree"] #decision tree
+# loaded_model = [joblib.load('models/randomForestModel.pkl'), "RF"] #random forest
+# loaded_model =[ joblib.load('models/knnModel.pkl'), "KNN"] #K-Nearest Neighbors
+# loaded_model = [joblib.load('models/TreeNoTorH.pkl'), "TreeNoT"] #decision tree without temperature or humidity
+model = loaded_model[0]
+for i in range(15):
   testFilePath = os.path.join('../testing/',os.listdir('../testing/')[i])
   print(testFilePath)
   data = []
@@ -130,18 +138,22 @@ for i in range(16):
   data = np.array(data).astype(float)
   prepped_data = preprocessing(data)
   prepped_data = prepped_data.reshape(1, -1)
+  predictions = loaded_model[0].predict(prepped_data)
 
-  predictions = loaded_model.predict(prepped_data)
-  # print(predictions.max()) use this to get the probability of this label.
-
-  print(predictions)
+  if loaded_model[1] == "NN" or loaded_model[1] == "KNN":
+      print(predictions)
+      predicted_labels = np.argmax(predictions, axis=1)
+      predicted_class_labels = [class_labels[label_index] for label_index in predicted_labels]
+      print("Predicted class labels:", predicted_class_labels)
+  else:
+      print("Predicted Label:", class_labels[predictions[0]])
 
   # 'predictions' will contain the predicted probabilities for each class
   # If you want to get the predicted class label, you can use argmax to find the index of the class with the highest probability
   # predicted_labels = np.argmax(predictions, axis=1)
 
   # If you have class labels, you can map the predicted label indices back to their corresponding class labels
-  class_labels = ["coffee", "orange", "sandalwood", "unknown"]
+
   # predicted_class_labels = [class_labels[label_index] for label_index in predicted_labels]
 
   # print("Predicted class labels:", predicted_class_labels)

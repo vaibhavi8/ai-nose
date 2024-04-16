@@ -44,13 +44,13 @@ one_hot_encoder = OneHotEncoder()
 
 
 
-# loaded_model = [load_model("PoCmodel.h5"), "NN"] #neural network
-# loaded_model = [joblib.load('logisticRegression.pkl'), "LogReg"] #logistic regression
-# loaded_model = [joblib.load('GradientBoosted.pkl'), "GB"] #gradient boosted
-loaded_model = [joblib.load('DecisionTreeModel.pkl'), "Tree"] #decision tree
-# loaded_model = [joblib.load('randomForestModel.pkl'), "RF"] #random forest
-# loaded_model =[ joblib.load('knnModel.pkl'), "KNN"] #K-Nearest Neighbors
-# loaded_model = [joblib.load('TreeNoTorH.pkl'), "TreeNoT"] #decision tree without temperature or humidity
+# loaded_model = [load_model("models/PoCmodel.h5"), "NN"] #neural network
+# loaded_model = [joblib.load('models/logisticRegression.pkl'), "LogReg"] #logistic regression
+# loaded_model = [joblib.load('models/GradientBoosted.pkl'), "GB"] #gradient boosted
+loaded_model = [joblib.load('models/DecisionTreeModel.pkl'), "Tree"] #decision tree
+# loaded_model = [joblib.load('models/randomForestModel.pkl'), "RF"] #random forest
+# loaded_model =[ joblib.load('models/knnModel.pkl'), "KNN"] #K-Nearest Neighbors
+# loaded_model = [joblib.load('models/TreeNoTorH.pkl'), "TreeNoT"] #decision tree without temperature or humidity
 
 
 

@@ -25,10 +25,10 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.ensemble import GradientBoostingClassifier
+import xgboost as xgb
 #### Neural Network ####
 # ### FLATTENING DATA ###
-LABELS = ["coffee", "sandalwood", "unknown"]
-
+LABELS = ["coffee", "sandalwood", "unknown"]#only make changes here during preprocessing
 #gathering preprocessed data from training/validation/testing file
 trainingPath = 'output/train/'
 validPath = 'output/val/'
@@ -110,34 +110,36 @@ early_stop = EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=
 reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.20, patience=2, min_lr=0.0001)
 history = model.fit(X_train, y_train_one_hot, epochs=130, batch_size=8, validation_data=(X_valid, y_valid_one_hot), callbacks=[reduce_lr, early_stop] ) #callbacks=[early_stop, reduce_lr]
 
-# # Create a figure with two subplots
-# fig, axes = plt.subplots(1, 2, figsize=(18, 6))
+# Create a figure with two subplots
+fig, axes = plt.subplots(1, 2, figsize=(18, 6))
 
-# # Plot training and validation accuracy
-# axes[0].plot(history.history['accuracy'], label='Training Accuracy')
-# axes[0].plot(history.history['val_accuracy'], label='Validation Accuracy')
-# axes[0].set_title('Training and Validation Accuracy')
-# axes[0].set_xlabel('Epoch')
-# axes[0].set_ylabel('Accuracy')
-# axes[0].legend()
+# Plot training and validation accuracy
+axes[0].plot(history.history['accuracy'], label='Training Accuracy')
+axes[0].plot(history.history['val_accuracy'], label='Validation Accuracy')
+axes[0].set_title('Training and Validation Accuracy')
+axes[0].set_xlabel('Epoch')
+axes[0].set_ylabel('Accuracy')
+axes[0].legend()
 
-# # Plot training and validation loss
-# axes[1].plot(history.history['loss'], label='Training Loss')
-# axes[1].plot(history.history['val_loss'], label='Validation Loss')
-# axes[1].set_title('Training and Validation Loss')
-# axes[1].set_xlabel('Epoch')
-# axes[1].set_ylabel('Loss')
-# axes[1].legend()
+# Plot training and validation loss
+axes[1].plot(history.history['loss'], label='Training Loss')
+axes[1].plot(history.history['val_loss'], label='Validation Loss')
+axes[1].set_title('Training and Validation Loss')
+axes[1].set_xlabel('Epoch')
+axes[1].set_ylabel('Loss')
+axes[1].legend()
 
-# # Show the plots
-# plt.tight_layout()
-# plt.show()
+# Show the plots
+plt.tight_layout()
+plt.show()
 
-model.save("PoCmodel.h5")
+model.save("models/PoCmodel.h5")
 
 ### DECISION TREE###
 
-dec_tree = DecisionTreeClassifier(max_leaf_nodes=12, random_state=42, criterion='gini')
+class_weights =  None#{0:28, 1:28, 2:28, 3:11, 4:13}
+
+dec_tree = DecisionTreeClassifier(max_leaf_nodes=12, random_state=42, criterion='gini', class_weight=class_weights)
 
 dec_tree.fit(X_train, y_train)
 
@@ -158,17 +160,19 @@ X_valid_df = pd.DataFrame(X_valid, columns=[f'feature_{i}' for i in range(X_vali
 class_names_list = LABELS
 
 
-joblib.dump(dec_tree, "DecisionTreeModel.pkl")
-# print(class_names_list)
+joblib.dump(dec_tree, "models/DecisionTreeModel.pkl")
+print(class_names_list)
 
-# # Visualize the decision tree (optional)
-# plt.figure(figsize=(14, 8))
-# plot_tree(dec_tree, filled=True, feature_names=X_train_df.columns.tolist(), class_names=class_names_list)
-# plt.show()
+# Visualize the decision tree (optional)
+plt.figure(figsize=(14, 8))
+plot_tree(dec_tree, filled=True, feature_names=X_train_df.columns.tolist(), class_names=class_names_list)
+plt.show()
 
 # ### DECISION TREE WITH GRADIENT BOOSTING ###
 grad_boost = GradientBoostingClassifier(n_estimators=5, learning_rate=0.001, max_depth=6, random_state=42, loss='log_loss')
-grad_boost.fit(X_train, y_train)
+
+sample_weights = None#np.array([class_weights[y] for y in y_train])
+grad_boost.fit(X_train, y_train,sample_weight=sample_weights)
 y_pred_encoded = grad_boost.predict(X_valid)
 train_predictions = grad_boost.predict(X_train)
 
@@ -181,11 +185,17 @@ print("Decision Tree with Gradient Boosting Validation Accuracy: ", valid_accura
 print("Decision Tree with Gradient Boosting Classification Report")
 print(classification_report(y_valid, y_pred_encoded))
 
-joblib.dump(grad_boost, "GradientBoosted.pkl")
+joblib.dump(grad_boost, "models/GradientBoosted.pkl")
+
+
+
+### Xtreme Gradient Boost ###
+
+# dtrain_reg = xgb.DMatrix(X)
 
 ###  RANDOM FOREST ###
 
-random_forest = RandomForestClassifier(n_estimators=8, max_depth=5, random_state=42, criterion='log_loss')
+random_forest = RandomForestClassifier(n_estimators=8, max_depth=5, random_state=42, criterion='log_loss', class_weight=class_weights)
 
 random_forest.fit(X_train, y_train)
 
@@ -200,7 +210,7 @@ print("Random Forest Valid Accuracy:", valid_accuracy)
 print("Random Forest Classification Report:")
 print(classification_report(y_valid, y_pred))
 
-joblib.dump(random_forest, 'randomForestModel.pkl')
+joblib.dump(random_forest, 'models/randomForestModel.pkl')
 
 
 # X_train_df = pd.DataFrame(X_train, columns=[f'feature_{i}' for i in range(X_train.shape[1])])
@@ -241,7 +251,7 @@ y_pred = knn.predict(X_valid_selected)
 accuracy = accuracy_score(y_valid_one_hot, y_pred)
 print("Accuracy: ", accuracy)
 
-joblib.dump(knn, 'knnModel.pkl')
+joblib.dump(knn, 'models/knnModel.pkl')
 
 # # Assuming X_train and y_train_one_hot are your training data and one-hot encoded labels
 # scatter = plt.scatter(X_train[:, 0], X_train[:, 1], c=np.argmax(y_train_one_hot, axis=1), cmap=plt.cm.coolwarm)
@@ -264,23 +274,23 @@ joblib.dump(knn, 'knnModel.pkl')
 
 
 # # Plotting every combination of features
-# num_features = len(selected_features)
-# num_plots = num_features * (num_features - 1) // 2  # Calculate total number of plots
+num_features = len(selected_features)
+num_plots = num_features * (num_features - 1) // 2  # Calculate total number of plots
 
-# plt.figure(figsize=(15, 10))
-# plot_index = 1
+plt.figure(figsize=(15, 10))
+plot_index = 1
 
-# for i in range(num_features):
-#     for j in range(i + 1, num_features):
-#         plt.subplot(num_features - 1, num_features - 1, plot_index)  # Create subplot
-#         for label in np.unique(y_valid):
-#             plt.scatter(X_valid_scaled[y_valid == label, i], X_valid_selected[y_valid == label, j], label=label)
-#         plt.xlabel('Feature {}'.format(selected_features[i]))
-#         plt.ylabel('Feature {}'.format(selected_features[j]))
-#         plt.title('Feature {} and Feature {}'.format(selected_features[i], selected_features[j]))
-#         plt.legend()
-#         plot_index += 1
+for i in range(num_features):
+    for j in range(i + 1, num_features):
+        plt.subplot(num_features - 1, num_features - 1, plot_index)  # Create subplot
+        for label in np.unique(y_valid):
+            plt.scatter(X_valid_scaled[y_valid == label, i], X_valid_selected[y_valid == label, j], label=label)
+        plt.xlabel('Feature {}'.format(selected_features[i]))
+        plt.ylabel('Feature {}'.format(selected_features[j]))
+        plt.title('Feature {} and Feature {}'.format(selected_features[i], selected_features[j]))
+        plt.legend()
+        plot_index += 1
 
-# plt.tight_layout()
-# plt.show()
+plt.tight_layout()
+plt.show()
 
